@@ -1,0 +1,3 @@
+[submodule "deps/libsmb2"]
+	path = deps/libsmb2
+	url = git@github.com:NozomiNetworks/libsmb2.git
