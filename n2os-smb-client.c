@@ -11,15 +11,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <sys/stat.h>
 
-#include "smb2.h"
-#include "libsmb2.h"
+#include "deps/libsmb2/include/smb2/smb2.h"
+#include "deps/libsmb2/include/smb2/libsmb2.h"
 
 #define MAXCMDSIZE 8
 #define MAXPATHSIZE 1024
-#define MAXBUF (16 * 1024 * 1024)
-uint8_t buf[MAXBUF];
-uint32_t pos;
+#define MAXBUF (1024 * 64)
 
 #define VERSION "0.1a"
 #define ECMDLINE 4
@@ -31,6 +30,7 @@ uint32_t pos;
 #define ESMBOPEN 10
 #define ESMBPREAD 11
 #define ELOCALFSERROR 12
+#define EWRITEERROR 13
 
 int usage(void)
 {
@@ -107,45 +107,61 @@ int ls(struct smb2_context *smb2, const char *path)
     return result_code;
 }
 
-int get(struct smb2_context *smb2, const char *path, const char *destfile) {
+int get(struct smb2_context *smb2, const char *source_file, const char *destination_file) {
     struct smb2fh *fh;
-    int count, return_code = 0;
+    int count, result_code = 0, nwritten;
+    int fd;
+    uint8_t buf[MAXBUF];
+    uint32_t pos = 0;
 
-    if (path == NULL) {
+    if (source_file == NULL) {
         printf("Invalid source path\n");
-        return_code = EINVALIDPATH;
+        result_code = EINVALIDPATH;
     } else {
-        if (destfile == NULL) destfile = strdup(path);
+        if (destination_file == NULL) destination_file = strdup(source_file);
 
-        fh = smb2_open(smb2, path, O_RDONLY);
+        fh = smb2_open(smb2, source_file, O_RDONLY);
         if (fh == NULL) {
             printf("smb2_open failed. %s\n", smb2_get_error(smb2));
-            return_code = ESMBOPEN;
+            result_code = ESMBOPEN;
         } else {
-            while ((count = smb2_pread(smb2, fh, buf, MAXBUF, pos)) != 0) {
-                if (count == -EAGAIN) {
-                    continue;
-                }
-                if (count < 0) {
-                    fprintf(stderr, "Failed to read file. %s\n",
-                            smb2_get_error(smb2));
-                    return_code = ESMBPREAD;
-                    break;
-                }
-                write(0, buf, count);
-                pos += count;
-            };
+            fd = creat(destination_file, S_IRUSR | S_IWUSR);
+            if (fd == -1) {
+                printf("Failed to create local file %s (%s)\n", destination_file, strerror(errno));
+                result_code = ELOCALFSERROR;
+            } else {
+                pos = 0;
+                while ((count = smb2_pread(smb2, fh, buf, MAXBUF, pos)) != 0) {
+                    if (count == -EAGAIN) {
+                        continue;
+                    }
+                    if (count < 0) {
+                        fprintf(stderr, "Failed to read file. %s\n", smb2_get_error(smb2));
+                        result_code = ESMBPREAD;
+                        break;
+                    }
+                    nwritten = write(fd, buf, count);
+                    if (nwritten < 0) {
+                        fprintf(stderr, "Failed writing to file. Error no: %i\n", errno);
+                        result_code = EWRITEERROR;
+                        break;
+                    }
+                    pos += count;
+                };
+                close(fd);
+            }
             smb2_close(smb2, fh);
         }
     }
 
-    return return_code;
+    return result_code;
 }
 
 int put(const char *source_file, struct smb2_context *smb2, const char *destination_file) {
     struct smb2fh *fh;
     int count;
     int fd, result_code = 0;
+    uint8_t buf[MAXBUF];
 
     if (source_file == NULL) {
         printf("Invalid source path\n");
@@ -220,14 +236,16 @@ int main(int argc, char *argv[])
                     ls(smb2, url->path);
                 } else if (strcmp(command, "put") == 0) {
                     strncpy(local_filename, argv[2], 256);
-                    if (put(local_filename, smb2, url->path)) {
+                    result_code = put(local_filename, smb2, url->path);
+                    if (result_code == 0) {
                         printf("OK: copy completed\n");
                     } else {
                         printf("ERROR: unable to copy\n");
                     }
                 } else if (strcmp(command, "get") == 0) {
                     strncpy(local_filename, argv[3], 256);
-                    if (get(smb2, url->path, local_filename)) {
+                    result_code = get(smb2, url->path, local_filename);
+                    if (result_code == 0) {
                         printf("OK: copy completed\n");
                     } else {
                         printf("ERROR: unable to copy\n");
