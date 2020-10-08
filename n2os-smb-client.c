@@ -15,6 +15,7 @@
 
 #include "deps/libsmb2/include/smb2/smb2.h"
 #include "deps/libsmb2/include/smb2/libsmb2.h"
+#include "deps/json-c/json.h"
 
 #define MAXCMDSIZE 8
 #define MAXPATHSIZE 1024
@@ -31,6 +32,7 @@
 #define ESMBPREAD 11
 #define ELOCALFSERROR 12
 #define EWRITEERROR 13
+#define ESMBWRITE 14
 
 int usage(void)
 {
@@ -49,7 +51,10 @@ int usage(void)
                     "9 - Invalid path error\n"
                     "10 - SMB open error\n"
                     "11 - SMB pread error\n"
-                    "12 - Local filesystem error\n", VERSION);
+                    "12 - Local filesystem error\n"
+                    "13 - Local filesystem write error\n"
+                    "14 - SMB write error\n"
+                    , VERSION);
 
     // I apologize to Dijkstra for this exit
     exit(ECMDLINE);
@@ -67,7 +72,11 @@ int ls(struct smb2_context *smb2, const char *path)
         printf("smb2_opendir failed. %s\n", smb2_get_error(smb2));
         result_code = ESMBOPENDIR;
     } else {
+        struct json_object *json_listing, *json_entry;
+        json_listing = json_object_new_array();
+
         while ((ent = smb2_readdir(smb2, dir))) {
+            json_entry = json_object_new_object();
             char *type;
             time_t t;
 
@@ -86,21 +95,14 @@ int ls(struct smb2_context *smb2, const char *path)
                     type = "unknown";
                     break;
             }
-            printf("%-20s %-9s %15"PRIu64" %s", ent->name, type, ent->st.smb2_size, asctime(localtime(&t)));
-            if (ent->st.smb2_type == SMB2_TYPE_LINK) {
-                char buffer[256];
-
-                if (path && path[0]) {
-                    asprintf(&link, "%s/%s", path, ent->name);
-                } else {
-                    asprintf(&link, "%s", ent->name);
-                }
-                smb2_readlink(smb2, link, buffer, BUFSIZ);
-                printf("    -> [%s]\n", buffer);
-                free(link);
-            }
+            json_object_object_add(json_entry, "name", json_object_new_string(ent->name));
+            json_object_object_add(json_entry, "type", json_object_new_string(type));
+            json_object_object_add(json_entry, "size", json_object_new_int64(ent->st.smb2_size));
+            json_object_object_add(json_entry, "time", json_object_new_int64(t));
+            json_object_array_add(json_listing, json_entry);
         }
-
+        printf("%s", json_object_to_json_string_ext(json_listing, JSON_C_TO_STRING_PRETTY));
+        json_object_put(json_listing); // Delete the json object
         smb2_closedir(smb2, dir);
     }
 
@@ -122,12 +124,12 @@ int get(struct smb2_context *smb2, const char *source_file, const char *destinat
 
         fh = smb2_open(smb2, source_file, O_RDONLY);
         if (fh == NULL) {
-            printf("smb2_open failed. %s\n", smb2_get_error(smb2));
+            fprintf(stderr, "smb2_open failed. %s\n", smb2_get_error(smb2));
             result_code = ESMBOPEN;
         } else {
             fd = creat(destination_file, S_IRUSR | S_IWUSR);
             if (fd == -1) {
-                printf("Failed to create local file %s (%s)\n", destination_file, strerror(errno));
+                fprintf(stderr, "Failed to create local file %s (%s)\n", destination_file, strerror(errno));
                 result_code = ELOCALFSERROR;
             } else {
                 pos = 0;
@@ -164,23 +166,27 @@ int put(const char *source_file, struct smb2_context *smb2, const char *destinat
     uint8_t buf[MAXBUF];
 
     if (source_file == NULL) {
-        printf("Invalid source path\n");
+        fprintf(stderr, "Invalid source path\n");
         result_code = EINVALIDPATH;
     } else {
         if (destination_file == NULL) destination_file = basename(strdup(source_file));
         fd = open(source_file, O_RDONLY);
         if (fd == -1) {
-            printf("Failed to open local file %s (%s)\n", source_file,
-                   strerror(errno));
+            fprintf(stderr, "Failed to open local file %s (%s)\n", source_file, strerror(errno));
             result_code = ELOCALFSERROR;
         } else {
             fh = smb2_open(smb2, destination_file, O_WRONLY | O_CREAT);
             if (fh == NULL) {
-                printf("smb2_open failed. %s\n", smb2_get_error(smb2));
+                fprintf(stderr, "smb2_open failed. %s\n", smb2_get_error(smb2));
                 result_code = ESMBOPEN;
             } else {
-                while ((count = read(fd, buf, 1024)) > 0) {
-                    smb2_write(smb2, fh, buf, count);
+                while ((count = read(fd, buf, MAXBUF)) > 0) {
+                    int write_status = smb2_write(smb2, fh, buf, count);
+                    if (write_status < 0) {
+                        fprintf(stderr, "smb2_write failed. Error code %i\n", write_status);
+                        result_code = ESMBWRITE;
+                        break;
+                    }
                 };
                 smb2_close(smb2, fh);
             }
@@ -229,7 +235,7 @@ int main(int argc, char *argv[])
             smb2_set_security_mode(smb2, SMB2_NEGOTIATE_SIGNING_ENABLED);
 
             if (smb2_connect_share(smb2, url->server, url->share, url->user) < 0) {
-                printf("smb2_connect_share failed. %s\n", smb2_get_error(smb2));
+                fprintf(stderr, "smb2_connect_share failed. %s\n", smb2_get_error(smb2));
                 result_code = ESMBCONNECT;
             } else {
                 if (strcmp(command, "ls") == 0) {
