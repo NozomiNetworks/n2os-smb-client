@@ -20,6 +20,7 @@
 #define MAXCMDSIZE 8
 #define MAXPATHSIZE 1024
 #define MAXBUF (1024 * 64)
+#define ENV_PASSWORD_VAR "N2OS_SMB_PASSWORD"
 
 #define VERSION "0.1a"
 #define ECMDLINE 4
@@ -36,11 +37,12 @@
 
 int usage(void)
 {
-    fprintf(stderr, "n2os-smb-client v.%s - (c) 2020 Nozomi Networks Inc.\n"
+    fprintf(stderr, "n2os-smb-client v.%s - (c) 2020 Nozomi Networks Inc.\n\n"
                     "Usage:\n"
                     "n2os-smb-client ls <smb2-url>\n"
                     "n2os-smb-client get <smb2-url> <local-filename>\n"
-                    "n2os-smb-client put <local-filename> <smb2-url>\n"
+                    "n2os-smb-client put <local-filename> <smb2-url>\n\n"
+                    "Password can be passed using the %s environment variable.\n"
                     "URL format: smb://[<domain;][<username>@]<host>[:<port>]/<share>/<path>\n\n"
                     "Exit codes:\n"
                     "4 - Cmd line error\n"
@@ -53,8 +55,8 @@ int usage(void)
                     "11 - SMB pread error\n"
                     "12 - Local filesystem error\n"
                     "13 - Local filesystem write error\n"
-                    "14 - SMB write error\n"
-                    , VERSION);
+                    "14 - SMB write error\n",
+                    VERSION, ENV_PASSWORD_VAR);
 
     // I apologize to Dijkstra for this exit
     exit(ECMDLINE);
@@ -207,6 +209,16 @@ int put(const char *source_file, struct smb2_context *smb2, const char *destinat
     return result_code;
 }
 
+void set_password_from_env(struct smb2_context *smb2)
+{
+    char *name = NULL;
+
+    name = getenv(ENV_PASSWORD_VAR);
+    if (name != NULL) {
+        smb2_set_password(smb2, name);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     struct smb2_context *smb2;
@@ -238,6 +250,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to init context\n");
         result_code = ESMBINIT;
     } else {
+        set_password_from_env(smb2);
+
         url = smb2_parse_url(smb2, smb_share);
         if (url == NULL) {
             fprintf(stderr, "Failed to parse url: %s\n", smb2_get_error(smb2));
