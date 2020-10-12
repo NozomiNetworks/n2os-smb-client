@@ -14,14 +14,20 @@ git submodule init
 cmake .
 ```
 
-## Syntax
+## Usage
+Usage is pretty simple. This client right now can just do three simple operations: ls, get and put.
+
+**Note that connection password can be passed using env variable N2OS_SMB_PASSWORD**
 
 ```
-n2os-smb-client v.0.1a - (c) 2020 Nozomi Networks Inc.
+n2os-smb-client v.0.1 - (c) 2020 Nozomi Networks Inc.
+
 Usage:
 n2os-smb-client ls <smb2-url>
-n2os-smb-client get <smb2-url> <local-filename>
+n2os-smb-client get <smb2-url> [<local-filename>]
 n2os-smb-client put <local-filename> <smb2-url>
+
+Password can be passed using the N2OS_SMB_PASSWORD environment variable.
 URL format: smb://[<domain;][<username>@]<host>[:<port>]/<share>/<path>
 
 Exit codes:
@@ -34,4 +40,6 @@ Exit codes:
 10 - SMB open error
 11 - SMB pread error
 12 - Local filesystem error
+13 - Local filesystem write error
+14 - SMB write error
 ```
