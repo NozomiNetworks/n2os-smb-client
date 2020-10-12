@@ -13,9 +13,9 @@
 #include <libgen.h>
 #include <sys/stat.h>
 
-#include "deps/libsmb2/include/smb2/smb2.h"
-#include "deps/libsmb2/include/smb2/libsmb2.h"
-#include "deps/json-c/json.h"
+#include "smb2.h"
+#include "libsmb2.h"
+#include "json.h"
 
 #define MAXCMDSIZE 8
 #define MAXPATHSIZE 1024
@@ -40,7 +40,7 @@ int usage(void)
     fprintf(stderr, "n2os-smb-client v.%s - (c) 2020 Nozomi Networks Inc.\n\n"
                     "Usage:\n"
                     "n2os-smb-client ls <smb2-url>\n"
-                    "n2os-smb-client get <smb2-url> <local-filename>\n"
+                    "n2os-smb-client get <smb2-url> [<local-filename>]\n"
                     "n2os-smb-client put <local-filename> <smb2-url>\n\n"
                     "Password can be passed using the %s environment variable.\n"
                     "URL format: smb://[<domain;][<username>@]<host>[:<port>]/<share>/<path>\n\n"
