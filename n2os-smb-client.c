@@ -99,6 +99,17 @@ int ls(struct smb2_context *smb2, const char *path)
             json_object_object_add(json_entry, "type", json_object_new_string(type));
             json_object_object_add(json_entry, "size", json_object_new_int64(ent->st.smb2_size));
             json_object_object_add(json_entry, "time", json_object_new_int64(t));
+            json_object_object_add(json_entry, "nlink", json_object_new_int(ent->st.smb2_size));
+            json_object_object_add(json_entry, "ino", json_object_new_int64(ent->st.smb2_ino));
+            json_object_object_add(json_entry, "atime", json_object_new_int64(ent->st.smb2_atime));
+            json_object_object_add(json_entry, "atime_nsec", json_object_new_int64(ent->st.smb2_atime_nsec));
+            json_object_object_add(json_entry, "mtime", json_object_new_int64(ent->st.smb2_mtime));
+            json_object_object_add(json_entry, "mtime_nsed", json_object_new_int64(ent->st.smb2_mtime_nsec));
+            json_object_object_add(json_entry, "ctime", json_object_new_int64(ent->st.smb2_ctime));
+            json_object_object_add(json_entry, "ctime_nsec", json_object_new_int64(ent->st.smb2_ctime_nsec));
+            json_object_object_add(json_entry, "btime", json_object_new_int64(ent->st.smb2_btime));
+            json_object_object_add(json_entry, "btime_nsec", json_object_new_int64(ent->st.smb2_btime_nsec));
+
             json_object_array_add(json_listing, json_entry);
         }
         printf("%s", json_object_to_json_string_ext(json_listing, JSON_C_TO_STRING_PRETTY));
