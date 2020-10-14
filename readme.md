@@ -19,7 +19,8 @@ strip -s n2os_smb_client
 Linux version
 ```
 docker run -it -v $(pwd):/n2os-smb-client debian:buster-slim /bin/bash
-apt install build-essential upx cmake libssl-dev
+apt update
+apt install -y build-essential upx cmake libssl-dev
 cmake . -DCMAKE_BUILD_TYPE=Release
 make
 strip -s n2os_smb_client

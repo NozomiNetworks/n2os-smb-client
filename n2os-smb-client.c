@@ -25,7 +25,7 @@
 #define MAXBUF (1024 * 64)
 #define ENV_PASSWORD_VAR "N2OS_SMB_PASSWORD"
 
-#define VERSION "0.3"
+#define VERSION "0.3.1"
 #define ECMDLINE 4
 #define ESMBINIT 5
 #define ESMBPARSE 6
@@ -303,6 +303,11 @@ int main(int argc, char *argv[])
                     }
                 } else if (strcmp(command, "del") == 0) {
                     result_code = del(smb2, url->path);
+                    if (result_code == 0) {
+                        printf("OK: delete completed\n");
+                    } else {
+                        printf("ERROR: unable to delete\n");
+                    }
                 } else {
                     printf("ERROR: unknown command\n\n");
                     usage();
