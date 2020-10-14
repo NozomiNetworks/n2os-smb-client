@@ -16,13 +16,15 @@
 #include "smb2.h"
 #include "libsmb2.h"
 #include "json.h"
+#include "deps/libsmb2/include/smb2/libsmb2.h"
+#include "deps/libsmb2/include/smb2/smb2.h"
 
 #define MAXCMDSIZE 8
 #define MAXPATHSIZE 1024
 #define MAXBUF (1024 * 64)
 #define ENV_PASSWORD_VAR "N2OS_SMB_PASSWORD"
 
-#define VERSION "0.1"
+#define VERSION "0.2"
 #define ECMDLINE 4
 #define ESMBINIT 5
 #define ESMBPARSE 6
@@ -34,12 +36,14 @@
 #define ELOCALFSERROR 12
 #define EWRITEERROR 13
 #define ESMBWRITE 14
+#define EUNLINKERROR 15
 
 int usage(void)
 {
     fprintf(stderr, "n2os-smb-client v.%s - (c) 2020 Nozomi Networks Inc.\n\n"
                     "Usage:\n"
                     "n2os-smb-client ls <smb2-url>\n"
+                    "n2os-smb-client del <smb2-url>\n"
                     "n2os-smb-client get <smb2-url> [<local-filename>]\n"
                     "n2os-smb-client put <local-filename> <smb2-url>\n\n"
                     "Password can be passed using the %s environment variable.\n"
@@ -55,7 +59,8 @@ int usage(void)
                     "11 - SMB pread error\n"
                     "12 - Local filesystem error\n"
                     "13 - Local filesystem write error\n"
-                    "14 - SMB write error\n",
+                    "14 - SMB write error\n"
+                    "15 - SMB unlink error\n",
                     VERSION, ENV_PASSWORD_VAR);
 
     // I apologize to Dijkstra for this exit
@@ -172,6 +177,16 @@ int get(struct smb2_context *smb2, const char *source_file, const char *destinat
     return result_code;
 }
 
+int del(struct smb2_context *smb2, const char *filename) {
+    int result_code = 0, unlink_error = 0;
+
+    if ((unlink_error = smb2_unlink(smb2, filename)) != 0) {
+        fprintf(stderr, "Unlink error %i\n", unlink_error);
+        result_code = EUNLINKERROR;
+    }
+    return result_code;
+}
+
 int put(const char *source_file, struct smb2_context *smb2, const char *destination_file) {
     struct smb2fh *fh;
     int count;
@@ -240,6 +255,9 @@ int main(int argc, char *argv[])
     } else if (strcmp(command, "get") == 0) {
         if (argc < 3) usage();
         strncpy(smb_share, argv[2], MAXPATHSIZE);
+    } else if (strcmp(command, "del") == 0) {
+        if (argc < 3) usage();
+        strncpy(smb_share, argv[2], MAXPATHSIZE);
     } else {
         fprintf(stderr, "Error: unknown command\n\n");
         usage();
@@ -264,7 +282,7 @@ int main(int argc, char *argv[])
                 result_code = ESMBCONNECT;
             } else {
                 if (strcmp(command, "ls") == 0) {
-                    ls(smb2, url->path);
+                    result_code = ls(smb2, url->path);
                 } else if (strcmp(command, "put") == 0) {
                     strncpy(local_filename, argv[2], 256);
                     result_code = put(local_filename, smb2, url->path);
@@ -281,6 +299,8 @@ int main(int argc, char *argv[])
                     } else {
                         printf("ERROR: unable to copy\n");
                     }
+                } else if (strcmp(command, "del") == 0) {
+                    result_code = del(smb2, url->path);
                 } else {
                     printf("ERROR: unknown command\n\n");
                     usage();

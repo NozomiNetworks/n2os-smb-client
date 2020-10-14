@@ -11,7 +11,20 @@ As default libsmb2 doesn't build under FreeBSD we have forked it https://github.
 ## Building
 ```
 git submodule init
-cmake .
+cmake . -DCMAKE_BUILD_TYPE=Release
+make
+strip -s n2os_smb_client
+```
+
+Linux version
+```
+docker run -it -v $(pwd):/n2os-smb-client debian:buster-slim /bin/bash
+
+apt install build-essential upx cmake libssl-dev
+cmake . -DCMAKE_BUILD_TYPE=Release
+make
+strip -s n2os_smb_client
+upx --best n2os_smb_client
 ```
 
 ## Usage
