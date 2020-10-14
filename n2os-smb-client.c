@@ -19,12 +19,13 @@
 #include "deps/libsmb2/include/smb2/libsmb2.h"
 #include "deps/libsmb2/include/smb2/smb2.h"
 
+#define DEFAULT_TIMEOUT 60
 #define MAXCMDSIZE 8
 #define MAXPATHSIZE 1024
 #define MAXBUF (1024 * 64)
 #define ENV_PASSWORD_VAR "N2OS_SMB_PASSWORD"
 
-#define VERSION "0.2"
+#define VERSION "0.3"
 #define ECMDLINE 4
 #define ESMBINIT 5
 #define ESMBPARSE 6
@@ -132,7 +133,7 @@ int get(struct smb2_context *smb2, const char *source_file, const char *destinat
     int count, result_code = 0, nwritten;
     int fd;
     uint8_t buf[MAXBUF];
-    uint32_t pos = 0;
+    unsigned int pos = 0;
 
     if (source_file == NULL) {
         printf("Invalid source path\n");
@@ -167,7 +168,7 @@ int get(struct smb2_context *smb2, const char *source_file, const char *destinat
                         break;
                     }
                     pos += count;
-                };
+                }
                 close(fd);
             }
             smb2_close(smb2, fh);
@@ -189,7 +190,7 @@ int del(struct smb2_context *smb2, const char *filename) {
 
 int put(const char *source_file, struct smb2_context *smb2, const char *destination_file) {
     struct smb2fh *fh;
-    int count;
+    unsigned int count;
     int fd, result_code = 0;
     uint8_t buf[MAXBUF];
 
@@ -215,7 +216,7 @@ int put(const char *source_file, struct smb2_context *smb2, const char *destinat
                         result_code = ESMBWRITE;
                         break;
                     }
-                };
+                }
                 smb2_close(smb2, fh);
             }
             close(fd);
@@ -276,6 +277,7 @@ int main(int argc, char *argv[])
             result_code = ESMBPARSE;
         } else {
             smb2_set_security_mode(smb2, SMB2_NEGOTIATE_SIGNING_ENABLED);
+            smb2_set_timeout(smb2, DEFAULT_TIMEOUT);
 
             if (smb2_connect_share(smb2, url->server, url->share, url->user) < 0) {
                 fprintf(stderr, "smb2_connect_share failed. %s\n", smb2_get_error(smb2));
