@@ -19,7 +19,6 @@ strip -s n2os_smb_client
 Linux version
 ```
 docker run -it -v $(pwd):/n2os-smb-client debian:buster-slim /bin/bash
-
 apt install build-essential upx cmake libssl-dev
 cmake . -DCMAKE_BUILD_TYPE=Release
 make
@@ -33,10 +32,11 @@ Usage is pretty simple. This client right now can just do three simple operation
 **Note that connection password can be passed using env variable N2OS_SMB_PASSWORD**
 
 ```
-n2os-smb-client v.0.1 - (c) 2020 Nozomi Networks Inc.
+n2os-smb-client v.0.2 - (c) 2020 Nozomi Networks Inc.
 
 Usage:
 n2os-smb-client ls <smb2-url>
+n2os-smb-client del <smb2-url>
 n2os-smb-client get <smb2-url> [<local-filename>]
 n2os-smb-client put <local-filename> <smb2-url>
 
@@ -55,4 +55,5 @@ Exit codes:
 12 - Local filesystem error
 13 - Local filesystem write error
 14 - SMB write error
+15 - SMB unlink error
 ```
