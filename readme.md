@@ -21,6 +21,7 @@ Linux version
 docker run -it -v $(pwd):/n2os-smb-client debian:buster-slim /bin/bash
 apt update
 apt install -y build-essential upx cmake libssl-dev
+cd /n2os-smb-client
 cmake . -DCMAKE_BUILD_TYPE=Release
 make
 strip -s n2os_smb_client
