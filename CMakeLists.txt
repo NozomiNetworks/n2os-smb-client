@@ -4,8 +4,8 @@ project(n2os_smb_client)
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL REQUIRED)
 
-add_compile_options("-fPIE" "-fPIC" "-fstack-protector" "-D_FORTIFY_SOURCE=2")
-add_link_options("-pie")
+add_compile_options("-O2" "-fPIE" "-fPIC" "-fstack-protector" "-D_FORTIFY_SOURCE=2")
+add_link_options("-pie" "-Wl,-z,relro,-z,now")
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
