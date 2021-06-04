@@ -10,7 +10,7 @@ As default libsmb2 doesn't build under FreeBSD we have forked it https://github.
 
 ## Building
 ```
-git submodule init
+git submodule update --init --recursive
 cmake . -DCMAKE_BUILD_TYPE=Release
 make
 strip -s n2os_smb_client
