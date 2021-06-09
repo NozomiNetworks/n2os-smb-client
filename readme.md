@@ -9,6 +9,14 @@ As default libsmb2 doesn't build under FreeBSD we have forked it https://github.
 
 
 ## Building
+Prerequisite: install kerberos
+```
+cd /usr/ports/security/krb5
+# (there should be a single Makefile in the folder)
+sudo make install clean
+```
+
+
 ```
 git submodule update --init --recursive
 cmake . -DCMAKE_BUILD_TYPE=Release
@@ -20,7 +28,7 @@ Linux version
 ```
 docker run -it -v $(pwd):/n2os-smb-client debian:buster-slim /bin/bash
 apt update
-apt install -y build-essential upx cmake libssl-dev
+apt install -y build-essential upx cmake libssl-dev libkrb5-dev
 cd /n2os-smb-client
 cmake . -DCMAKE_BUILD_TYPE=Release
 make

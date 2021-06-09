@@ -19,14 +19,22 @@
 #include "libsmb2.h"
 #include "smb2.h"
 
+// probably an omission in libsmb2, this enumeration is part of the public interface
+// but it's defined in a private header. 
+enum
+{
+  SMB2_SEC_UNDEFINED = 0,
+  SMB2_SEC_NTLMSSP,
+  SMB2_SEC_KRB5,
+};
+
 #define DEFAULT_TIMEOUT 60
-#define MAXCMDSIZE 8
 #define MAXPATHSIZE 1024
 #define MAXFILENAMELEN 256
 #define MAXBUF (1024 * 64)
 #define ENV_PASSWORD_VAR "N2OS_SMB_PASSWORD"
 
-#define VERSION "0.3.3"
+#define VERSION "0.3.4"
 #define ECMDLINE 4
 #define ESMBINIT 5
 #define ESMBPARSE 6
@@ -189,6 +197,7 @@ int get(struct smb2_context* smb2, const char* source_file, const char* destinat
   int fd;
   uint8_t buf[MAXBUF];
   unsigned int pos = 0;
+  unsigned int max_read = MAXBUF;
 
   destroy_fd_t dispose_of_fd = ignore_fd;
   destroy_smb_t dispose_of_smb = ignore_smb;
@@ -230,8 +239,14 @@ int get(struct smb2_context* smb2, const char* source_file, const char* destinat
     dispose_of_fd = close_fd;
   }
 
+  max_read = smb2_get_max_read_size(smb2);
+  if (max_read == 0 || max_read > MAXBUF)
+  {
+    max_read = MAXBUF;
+  }
+
   pos = 0;
-  while ((count = smb2_pread(smb2, fh, buf, MAXBUF, pos)) != 0)
+  while ((count = smb2_pread(smb2, fh, buf, max_read, pos)) != 0)
   {
     if (count == -EAGAIN)
     {
@@ -279,6 +294,7 @@ int put(const char* source_file, struct smb2_context* smb2, const char* destinat
   unsigned int count;
   int fd, result_code = 0;
   uint8_t buf[MAXBUF];
+  unsigned int max_write = MAXBUF;
 
   destroy_fd_t dispose_of_fd = ignore_fd;
   destroy_smb_t dispose_of_smb = ignore_smb;
@@ -319,15 +335,31 @@ int put(const char* source_file, struct smb2_context* smb2, const char* destinat
     dispose_of_smb = close_smb_file;
   }
 
+  max_write = smb2_get_max_write_size(smb2);
+  if (max_write == 0)
+  {
+    max_write = MAXBUF; // try to ignore and continue
+  }
+
   while ((count = read(fd, buf, MAXBUF)) > 0)
   {
-    int write_status = smb2_write(smb2, fh, buf, count);
-    if (write_status < 0)
+    const uint8_t* buf_start = buf;
+    do
     {
-      fprintf(stderr, "smb2_write failed. Error code %i\n", write_status);
-      result_code = ESMBWRITE;
-      break;
+      unsigned int delta = (count > max_write) ? max_write : count;
+
+      int write_status = smb2_write(smb2, fh, buf_start, delta);
+      if (write_status < 0)
+      {
+        fprintf(stderr, "smb2_write failed. Error code %i\n", write_status);
+        result_code = ESMBWRITE;
+        goto error;
+      }
+
+      count -= delta;
+      buf_start += delta;
     }
+    while (count > 0);
   }
 
 error:
@@ -433,6 +465,8 @@ int main(int argc, char* argv[])
 
   smb2_set_security_mode(smb2, SMB2_NEGOTIATE_SIGNING_ENABLED);
   smb2_set_timeout(smb2, DEFAULT_TIMEOUT);
+  // unless the url ends in '?sec=krb5', default to ntlm
+  smb2_set_authentication(smb2, SMB2_SEC_NTLMSSP);
 
   url = smb2_parse_url(smb2, smb_share);
   if (url == NULL)
