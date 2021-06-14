@@ -480,6 +480,12 @@ int main(int argc, char* argv[])
     dispose_of_url = destroy_url;
   }
 
+  if (url->domain)
+  {
+    smb2_set_user(smb2, url->user);
+    smb2_set_domain(smb2, url->domain);
+  }
+
   if (smb2_connect_share(smb2, url->server, url->share, url->user) < 0)
   {
     fprintf(stderr, "smb2_connect_share failed. %s\n", smb2_get_error(smb2));
