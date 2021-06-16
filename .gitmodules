@@ -1,6 +1,6 @@
-[submodule "deps/libsmb2"]
-	path = deps/libsmb2
-	url = git@github.com:NozomiNetworks/libsmb2.git
 [submodule "deps/json-c"]
 	path = deps/json-c
 	url = git@github.com:json-c/json-c.git
+[submodule "deps/libsmb2"]
+	path = deps/libsmb2
+	url = https://github.com/sahlberg/libsmb2/
