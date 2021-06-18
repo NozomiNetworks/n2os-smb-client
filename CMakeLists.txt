@@ -54,7 +54,11 @@ else()
     message(STATUS "Kerberos support is DISABLED")
 
     # patch the child cmake file, to remove the macro definition
-    execute_process(WORKING_DIRECTORY ${LIBSMB2_DIR} COMMAND sed -i "" "/HAVE_LIBKRB5/d" CMakeLists.txt)
+    if (NOT "${CMAKE_SYSTEM}" MATCHES "Linux")
+        execute_process(WORKING_DIRECTORY ${LIBSMB2_DIR} COMMAND sed -i "" "/HAVE_LIBKRB5/d" CMakeLists.txt)
+    else()
+        execute_process(WORKING_DIRECTORY ${LIBSMB2_DIR} COMMAND sed -i "/HAVE_LIBKRB5/d" CMakeLists.txt)
+    endif()
     set(core_DEPENDS "" CACHE STRING "" FORCE)
 endif()
 
