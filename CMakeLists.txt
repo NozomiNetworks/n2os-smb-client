@@ -50,6 +50,8 @@ endif()
 if (${BUILD_WITH_KRB5})
     message(STATUS "Kerberos support is ENABLED")
     include_directories(BEFORE SYSTEM ${GSSAPI_INCLUDE_DIR})
+    # include_directories(BEFORE SYSTEM ${GSSAPI_INCLUDE_DIR}/gssapi)
+    # include_directories(BEFORE SYSTEM ${GSSAPI_INCLUDE_DIR}/krb5/)
 else()
     message(STATUS "Kerberos support is DISABLED")
 
@@ -69,7 +71,9 @@ include_directories(${LIBJSONC_DIR})
 include_directories(${LIBSMB2_DIR}/include/smb2)
 include_directories(${LIBSMB2_DIR}/include)
 
-
+if (${BUILD_WITH_KRB5})
+    link_libraries(${GSSAPI_LIBRARY} ${KRB_LIBRARY} smb2 json-c)
+endif()
 add_executable(n2os_smb_client n2os-smb-client.c)
 
 if (${BUILD_WITH_KRB5})

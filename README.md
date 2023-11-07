@@ -1,21 +1,17 @@
 # n2os-smb-client
-**THIS IS IN SUPER ALPHA STAGE**  
 
-This is a custom make smb/cifs client with libsmb2 statically linked.
-
-We need this to avoid adding all the samba stuff to our n2os firmware.
-
-As default libsmb2 doesn't build under FreeBSD we have forked it https://github.com/NozomiNetworks/libsmb2 and this project uses it as submodules 
-
+This is a custom smb/cifs client with libsmb2 statically linked.
 
 ## Building
-Prerequisite: install kerberos
+
+### FreeBSD version
+
+Optional prerequisite: install kerberos if you want Kerberos support
 ```
 cd /usr/ports/security/krb5
 # (there should be a single Makefile in the folder)
 sudo make install clean
 ```
-
 
 ```
 git submodule update --init --recursive
@@ -24,7 +20,8 @@ make
 strip -s n2os_smb_client
 ```
 
-Linux version
+### Linux version
+
 ```
 docker run -it -v $(pwd):/n2os-smb-client debian:buster-slim /bin/bash
 apt update
@@ -36,8 +33,23 @@ strip -s n2os_smb_client
 upx --best n2os_smb_client
 ```
 
+A [Dockerfile](Dockerfile.linux) is also provided to simplify the build.
+You can use it as:
+
+```
+docker build -t "smblinux:latest" -f Dockerfile.linux .
+docker run --rm -v "$PWD/bin":/usr/src/n2os-smb-client/bin:Z smblinux:latest
+```
+
+### Kerberos support
+
+To build with kerberos support, provided that the dependencies are met, just add
+to the cmake commandline `-DBUILD_WITH_KRB5=true`.
+
 ## Usage
-Usage is pretty simple. This client right now can just do three simple operations: ls, get and put.
+
+Usage is pretty simple. This client right now can just do three simple
+operations: ls, get and put.
 
 **Note that connection password can be passed using env variable N2OS_SMB_PASSWORD**
 

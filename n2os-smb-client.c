@@ -1,5 +1,5 @@
 // n2os-smb-client Samba v2/3 custom client
-// Copyright (c) 2013-2020, Nozomi Networks Inc. All rights reserved.
+// Copyright (c) 2013-2023, Nozomi Networks Inc. All rights reserved.
 
 #include <errno.h>
 #include <fcntl.h>
@@ -34,7 +34,7 @@ enum
 #define MAXBUF (1024 * 64)
 #define ENV_PASSWORD_VAR "N2OS_SMB_PASSWORD"
 
-#define VERSION "0.3.4"
+#define VERSION "0.3.5"
 #define ECMDLINE 4
 #define ESMBINIT 5
 #define ESMBPARSE 6
@@ -53,7 +53,7 @@ enum
 int usage(void)
 {
   fprintf(stderr,
-          "n2os-smb-client v.%s - (c) 2020 Nozomi Networks Inc.\n\n"
+          "n2os-smb-client v.%s - (c) 2020-2023 Nozomi Networks Inc.\n\n"
           "Usage:\n"
           "n2os-smb-client ls <smb2-url>\n"
           "n2os-smb-client del <smb2-url>\n"
@@ -141,7 +141,8 @@ int ls(struct smb2_context* smb2, const char* path)
     return ESMBOPENDIR;
   }
 
-  struct json_object *json_listing, *json_entry;
+  struct json_object *json_listing;
+  struct json_object *json_entry;
   json_listing = json_object_new_array();
 
   while ((ent = smb2_readdir(smb2, dir)))
@@ -193,7 +194,9 @@ int ls(struct smb2_context* smb2, const char* path)
 int get(struct smb2_context* smb2, const char* source_file, const char* destination_file)
 {
   struct smb2fh* fh;
-  int count, result_code = 0, nwritten;
+  int count;
+  int result_code = 0;
+  int nwritten;
   int fd;
   uint8_t buf[MAXBUF];
   unsigned int pos = 0;
@@ -278,7 +281,8 @@ error:
 
 int del(struct smb2_context* smb2, const char* filename)
 {
-  int result_code = 0, unlink_error = 0;
+  int result_code = 0;
+  int unlink_error = 0;
 
   if ((unlink_error = smb2_unlink(smb2, filename)) != 0)
   {
@@ -292,7 +296,8 @@ int put(const char* source_file, struct smb2_context* smb2, const char* destinat
 {
   struct smb2fh* fh;
   unsigned int count;
-  int fd, result_code = 0;
+  int fd;
+  int result_code = 0;
   uint8_t buf[MAXBUF];
   unsigned int max_write = MAXBUF;
 

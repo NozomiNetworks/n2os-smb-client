@@ -1,0 +1,17 @@
+# docker build -t "smblinux:latest" -f Dockerfile.linux .
+# docker run --rm -v "$PWD/bin":/usr/src/n2os-smb-client/bin:Z smblinux:latest
+# docker run --rm -ti -v "$PWD/bin":/usr/src/n2os-smb-client/bin:Z smblinux:latest /bin/bash
+
+# FROM debian:buster-slim # no upx at the moment
+FROM debian:bullseye-slim
+
+WORKDIR /usr/src/n2os-smb-client
+COPY . .
+
+# hadolint ignore=DL3008
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git build-essential upx-ucl cmake libssl-dev libkrb5-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    ldconfig
+
+CMD [ "./build.linux.sh" ]
