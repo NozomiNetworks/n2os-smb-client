@@ -14,10 +14,9 @@ jobs:
     #   MYTOKEN : ${{ secrets.MYTOKEN }}
     #   MYTOKEN2: "value2"
     steps:
-    - uses: actions/checkout@v3
-    - name: Prepare submodules
-      run: |
-        git submodule update --init --recursive
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
     - name: Build in FreeBSD
       id: build
       uses: vmactions/freebsd-vm@v1
