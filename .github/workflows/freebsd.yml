@@ -37,8 +37,8 @@ jobs:
       with:
         operating_system: freebsd
         version: '13.2'
-        shell: sh
-        sync_files: true
+        # shell: sh
+        # sync_files: true
         run: |
           ./build.bsd.sh
     - name: Store executable
