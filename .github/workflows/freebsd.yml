@@ -1,0 +1,31 @@
+name: FreeBSD build
+
+on:
+  push: 
+  workflow_dispatch: 
+  pull_request: 
+
+jobs:
+  freebsdbuild:
+    runs-on: ubuntu-22.04
+    name: Build on FreeBSD
+    # env:
+    #   MYTOKEN : ${{ secrets.MYTOKEN }}
+    #   MYTOKEN2: "value2"
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build in FreeBSD
+      id: build
+      uses: vmactions/freebsd-vm@v1
+      with:
+        # envs: 'MYTOKEN MYTOKEN2'
+        usesh: true
+        prepare: |
+          git submodule update --init --recursive
+        run: |
+          ./build.bsd.sh
+    - name: Store executable
+      uses: actions/upload-artifact@v3
+      with:
+        name: n2os_smb_client.bsd
+        path: bin/n2os_smb_client.bsd
