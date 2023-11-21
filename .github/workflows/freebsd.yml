@@ -8,8 +8,8 @@ on:
 jobs:
   freebsdbuild:
     timeout-minutes: 30
-    # runs-on: ubuntu-22.04
-    runs-on: nws-self-hosted-xlarge
+    runs-on: ubuntu-22.04
+    # runs-on: nws-self-hosted-xlarge
     name: Build on FreeBSD
     # env:
     #   MYTOKEN : ${{ secrets.MYTOKEN }}
@@ -36,10 +36,9 @@ jobs:
       uses: cross-platform-actions/action@v0.21.1
       with:
         operating_system: freebsd
-        version: '13.0'
-        # shell: sh
-        # shell: bash
-        # sync_files: false
+        version: '13.2'
+        shell: bash
+        sync_files: true
         run: |
           ./build.bsd.sh
     - name: Store executable
