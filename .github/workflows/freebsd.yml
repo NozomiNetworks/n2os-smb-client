@@ -26,7 +26,7 @@ jobs:
         usesh: true
         # sync: sshfs
         # mem: 2048
-        release: 13.0
+        release: '13.0'
         # prepare: |
         #   pkg install -y git
         #   git submodule update --init --recursive
