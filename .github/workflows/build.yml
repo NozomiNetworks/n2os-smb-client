@@ -1,0 +1,41 @@
+name: Multi-platform build
+
+on:
+  # push:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  build-linux:
+    uses: ./.github/workflows/linux.yml
+    secrets: inherit
+  build-freebsd:
+    uses: ./.github/workflows/freebsd.yml
+    secrets: inherit
+  finalize:
+    runs-on: ubuntu-22.04
+    needs: [build-linux, build-freebsd]
+    steps:
+      - name: Download artifact - FreeBSD
+        uses: actions/download-artifact@v3
+        with:
+          name: n2os_smb_client.bsd
+      - name: Download artifact - Linux
+        uses: actions/download-artifact@v3
+        with:
+          name: n2os_smb_client.linux
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: bin/
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        # if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            bin/n2os_smb_client.bsd
+            bin/n2os_smb_client.linux
+          body: "test test test"
+          draft: true
+          name: test_release
+          tag_name: test_tag
+          fail_on_unmatched_files: true
