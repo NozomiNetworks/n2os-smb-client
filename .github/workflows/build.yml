@@ -20,10 +20,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: n2os_smb_client.bsd
+          path: bin/
       - name: Download artifact - Linux
         uses: actions/download-artifact@v3
         with:
           name: n2os_smb_client.linux
+          path: bin/
       - name: Display structure of downloaded files
         run: ls -R
         working-directory: bin/
