@@ -16,9 +16,9 @@ jobs:
         submodules: recursive
     - name: Prepare environment
       run: |
-        apt-get update
-        apt-get install -y --no-install-recommends build-essential upx-ucl cmake libssl-dev libkrb5-dev
-        ldconfig
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends build-essential upx-ucl cmake libssl-dev libkrb5-dev
+        sudo ldconfig
     - name: Build
       run: |
         ./build.linux.sh
