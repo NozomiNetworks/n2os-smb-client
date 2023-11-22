@@ -1,9 +1,19 @@
+# Dockerfile for Linux
+#
+# Build:
 # docker build -t "smblinux:latest" -f Dockerfile.linux .
+#
+# Run with no options:
 # docker run --rm -v "$PWD/bin":/usr/src/n2os-smb-client/bin:Z smblinux:latest
+#
+# Run a command:
+# docker run --env N2OS_SMB_PASSWORD=${N2OS_SMB_PASSWORD} --rm -v "$PWD/bin":/usr/src/n2os-smb-client/bin:Z smblinux:latest ls smb://media@192.168.1.100/_media
+#
+# Interactive shell on the container:
 # docker run --rm -ti -v "$PWD/bin":/usr/src/n2os-smb-client/bin:Z smblinux:latest /bin/bash
 
-# FROM debian:buster-slim # no upx at the moment
-FROM debian:bullseye-slim
+# FROM debian:bookworm-slim # no upx at the moment
+FROM debian:bullseye-slim AS builder
 
 WORKDIR /usr/src/n2os-smb-client
 COPY . .
@@ -12,6 +22,11 @@ COPY . .
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git build-essential upx-ucl cmake libssl-dev libkrb5-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
-    ldconfig
+    ldconfig && \
+    ./build.linux.sh
 
-CMD [ "./build.linux.sh" ]
+FROM debian:bullseye-slim
+
+COPY --from=builder /usr/src/n2os-smb-client/bin/n2os_smb_client.linux /usr/bin/n2os_smb_client.linux
+
+ENTRYPOINT [ "/usr/bin/n2os_smb_client.linux" ]
