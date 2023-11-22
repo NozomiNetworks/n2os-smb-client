@@ -400,8 +400,8 @@ int main(int argc, char* argv[])
   struct smb2_context* smb2;
   struct smb2_url* url;
   char* command;
-  char local_filename[MAXPATHSIZE] = {0};
-  char smb_share[MAXPATHSIZE] = {0};
+  char local_filename[MAXPATHSIZE + MAXFILENAMELEN + 1] = {0};
+  char smb_share[MAXPATHSIZE + 1] = {0};
   int result_code = 0;
   int what = 0;
 
