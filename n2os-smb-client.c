@@ -19,10 +19,9 @@
 #include "libsmb2.h"
 #include "smb2.h"
 
-// probably an omission in libsmb2, this enumeration is part of the public interface
-// but it's defined in a private header. 
-enum
-{
+// probably an omission in libsmb2, this enumeration is part of the public
+// interface but it's defined in a private header.
+enum {
   SMB2_SEC_UNDEFINED = 0,
   SMB2_SEC_NTLMSSP,
   SMB2_SEC_KRB5,
@@ -50,8 +49,7 @@ enum
 
 #define IS_VALID_FILE(s) ((s) && *(s))
 
-int usage(void)
-{
+int usage(void) {
   fprintf(stderr,
           "n2os-smb-client v.%s - (c) 2020-2023 Nozomi Networks Inc.\n\n"
           "Usage:\n"
@@ -77,66 +75,41 @@ int usage(void)
           "15 - SMB unlink error\n",
           VERSION, ENV_PASSWORD_VAR);
 
-
   return ECMDLINE;
 }
 
-
 typedef void (*destroy_fd_t)(int);
-typedef void (*destroy_t)(void*);
-typedef void (*destroy_smb_t)(struct smb2_context* smb, void*);
+typedef void (*destroy_t)(void *);
+typedef void (*destroy_smb_t)(struct smb2_context *smb, void *);
 
+void ignore_fd(int fd) {}
+void close_fd(int fd) { close(fd); }
 
-void ignore_fd(int fd)
-{
+void ignore_smb(struct smb2_context *smb, void *ptr) {}
+void close_smb_dir(struct smb2_context *smb, void *dir) {
+  smb2_closedir(smb, (struct smb2dir *)dir);
 }
-void close_fd(int fd)
-{
-  close(fd);
-}
-
-void ignore_smb(struct smb2_context* smb, void* ptr)
-{
-}
-void close_smb_dir(struct smb2_context* smb, void* dir)
-{
-  smb2_closedir(smb, (struct smb2dir*)dir);
-}
-void close_smb_file(struct smb2_context* smb, void* fh)
-{
-  smb2_close(smb, (struct smb2fh*)fh);
+void close_smb_file(struct smb2_context *smb, void *fh) {
+  smb2_close(smb, (struct smb2fh *)fh);
 }
 
-void ignore_ptr(void* ptr)
-{
+void ignore_ptr(void *ptr) {}
+void destroy_url(void *url) { smb2_destroy_url((struct smb2_url *)url); }
+void destroy_context(void *smb2) {
+  smb2_destroy_context((struct smb2_context *)smb2);
 }
-void destroy_url(void* url)
-{
-  smb2_destroy_url((struct smb2_url*)url);
+void disconnect_share(void *smb2) {
+  smb2_disconnect_share((struct smb2_context *)smb2);
 }
-void destroy_context(void* smb2)
-{
-  smb2_destroy_context((struct smb2_context*)smb2);
-}
-void disconnect_share(void* smb2)
-{
-  smb2_disconnect_share((struct smb2_context*)smb2);
-}
-void free_memory(void* ptr)
-{
-  free(ptr);
-}
+void free_memory(void *ptr) { free(ptr); }
 
-
-int ls(struct smb2_context* smb2, const char* path)
-{
-  struct smb2dir* dir;
-  struct smb2dirent* ent;
-  char const* link;
+int ls(struct smb2_context *smb2, const char *path) {
+  struct smb2dir *dir;
+  struct smb2dirent *ent;
+  char const *link;
 
   dir = smb2_opendir(smb2, path);
-  if (dir == NULL)
-  {
+  if (dir == NULL) {
     printf("smb2_opendir failed. %s\n", smb2_get_error(smb2));
     return ESMBOPENDIR;
   }
@@ -145,55 +118,66 @@ int ls(struct smb2_context* smb2, const char* path)
   struct json_object *json_entry;
   json_listing = json_object_new_array();
 
-  while ((ent = smb2_readdir(smb2, dir)))
-  {
+  while ((ent = smb2_readdir(smb2, dir))) {
     json_entry = json_object_new_object();
-    char const* type;
+    char const *type;
     time_t t;
 
     t = (time_t)ent->st.smb2_mtime;
-    switch (ent->st.smb2_type)
-    {
-      case SMB2_TYPE_LINK:
-        type = "LINK";
-        break;
-      case SMB2_TYPE_FILE:
-        type = "FILE";
-        break;
-      case SMB2_TYPE_DIRECTORY:
-        type = "DIRECTORY";
-        break;
-      default:
-        type = "unknown";
-        break;
+    switch (ent->st.smb2_type) {
+    case SMB2_TYPE_LINK:
+      type = "LINK";
+      break;
+    case SMB2_TYPE_FILE:
+      type = "FILE";
+      break;
+    case SMB2_TYPE_DIRECTORY:
+      type = "DIRECTORY";
+      break;
+    default:
+      type = "unknown";
+      break;
     }
-    json_object_object_add(json_entry, "name", json_object_new_string(ent->name));
+    json_object_object_add(json_entry, "name",
+                           json_object_new_string(ent->name));
     json_object_object_add(json_entry, "type", json_object_new_string(type));
-    json_object_object_add(json_entry, "size", json_object_new_int64(ent->st.smb2_size));
+    json_object_object_add(json_entry, "size",
+                           json_object_new_int64(ent->st.smb2_size));
     json_object_object_add(json_entry, "time", json_object_new_int64(t));
-    json_object_object_add(json_entry, "nlink", json_object_new_int(ent->st.smb2_size));
-    json_object_object_add(json_entry, "ino", json_object_new_int64(ent->st.smb2_ino));
-    json_object_object_add(json_entry, "atime", json_object_new_int64(ent->st.smb2_atime));
-    json_object_object_add(json_entry, "atime_nsec", json_object_new_int64(ent->st.smb2_atime_nsec));
-    json_object_object_add(json_entry, "mtime", json_object_new_int64(ent->st.smb2_mtime));
-    json_object_object_add(json_entry, "mtime_nsed", json_object_new_int64(ent->st.smb2_mtime_nsec));
-    json_object_object_add(json_entry, "ctime", json_object_new_int64(ent->st.smb2_ctime));
-    json_object_object_add(json_entry, "ctime_nsec", json_object_new_int64(ent->st.smb2_ctime_nsec));
-    json_object_object_add(json_entry, "btime", json_object_new_int64(ent->st.smb2_btime));
-    json_object_object_add(json_entry, "btime_nsec", json_object_new_int64(ent->st.smb2_btime_nsec));
+    json_object_object_add(json_entry, "nlink",
+                           json_object_new_int(ent->st.smb2_size));
+    json_object_object_add(json_entry, "ino",
+                           json_object_new_int64(ent->st.smb2_ino));
+    json_object_object_add(json_entry, "atime",
+                           json_object_new_int64(ent->st.smb2_atime));
+    json_object_object_add(json_entry, "atime_nsec",
+                           json_object_new_int64(ent->st.smb2_atime_nsec));
+    json_object_object_add(json_entry, "mtime",
+                           json_object_new_int64(ent->st.smb2_mtime));
+    json_object_object_add(json_entry, "mtime_nsed",
+                           json_object_new_int64(ent->st.smb2_mtime_nsec));
+    json_object_object_add(json_entry, "ctime",
+                           json_object_new_int64(ent->st.smb2_ctime));
+    json_object_object_add(json_entry, "ctime_nsec",
+                           json_object_new_int64(ent->st.smb2_ctime_nsec));
+    json_object_object_add(json_entry, "btime",
+                           json_object_new_int64(ent->st.smb2_btime));
+    json_object_object_add(json_entry, "btime_nsec",
+                           json_object_new_int64(ent->st.smb2_btime_nsec));
 
     json_object_array_add(json_listing, json_entry);
   }
-  printf("%s", json_object_to_json_string_ext(json_listing, JSON_C_TO_STRING_PRETTY));
+  printf("%s",
+         json_object_to_json_string_ext(json_listing, JSON_C_TO_STRING_PRETTY));
   json_object_put(json_listing); // Delete the json object
   smb2_closedir(smb2, dir);
 
   return 0;
 }
 
-int get(struct smb2_context* smb2, const char* source_file, const char* destination_file)
-{
-  struct smb2fh* fh;
+int get(struct smb2_context *smb2, const char *source_file,
+        const char *destination_file) {
+  struct smb2fh *fh;
   int count;
   int result_code = 0;
   int nwritten;
@@ -206,65 +190,53 @@ int get(struct smb2_context* smb2, const char* source_file, const char* destinat
   destroy_smb_t dispose_of_smb = ignore_smb;
   destroy_t dispose_of_filename = ignore_ptr;
 
-  if (!IS_VALID_FILE(source_file))
-  {
+  if (!IS_VALID_FILE(source_file)) {
     printf("Invalid source path\n");
     return EINVALIDPATH;
   }
 
-  if (!IS_VALID_FILE(destination_file))
-  {
+  if (!IS_VALID_FILE(destination_file)) {
     destination_file = basename(strdup(source_file));
     dispose_of_filename = free_memory;
   }
 
   fh = smb2_open(smb2, source_file, O_RDONLY);
-  if (fh == NULL)
-  {
+  if (fh == NULL) {
     fprintf(stderr, "smb2_open failed. %s\n", smb2_get_error(smb2));
     return ESMBOPEN;
-  }
-  else
-  {
+  } else {
     dispose_of_smb = close_smb_file;
   }
 
-
   fd = creat(destination_file, S_IRUSR | S_IWUSR);
-  if (fd == -1)
-  {
-    fprintf(stderr, "Failed to create local file %s (%s)\n", destination_file, strerror(errno));
+  if (fd == -1) {
+    fprintf(stderr, "Failed to create local file %s (%s)\n", destination_file,
+            strerror(errno));
     result_code = ELOCALFSERROR;
     goto error;
-  }
-  else
-  {
+  } else {
     dispose_of_fd = close_fd;
   }
 
   max_read = smb2_get_max_read_size(smb2);
-  if (max_read == 0 || max_read > MAXBUF)
-  {
+  if (max_read == 0 || max_read > MAXBUF) {
     max_read = MAXBUF;
   }
 
   pos = 0;
-  while ((count = smb2_pread(smb2, fh, buf, max_read, pos)) != 0)
-  {
-    if (count == -EAGAIN)
-    {
+  while ((count = smb2_pread(smb2, fh, buf, max_read, pos)) != 0) {
+    if (count == -EAGAIN) {
       continue;
     }
-    if (count < 0)
-    {
+    if (count < 0) {
       fprintf(stderr, "Failed to read file. %s\n", smb2_get_error(smb2));
       result_code = ESMBPREAD;
       break;
     }
     nwritten = write(fd, buf, count);
-    if (nwritten < 0)
-    {
-      fprintf(stderr, "Failed to write file %s. Error code %i (%s)\n", destination_file, errno, strerror(errno));
+    if (nwritten < 0) {
+      fprintf(stderr, "Failed to write file %s. Error code %i (%s)\n",
+              destination_file, errno, strerror(errno));
       result_code = EWRITEERROR;
       break;
     }
@@ -274,27 +246,25 @@ int get(struct smb2_context* smb2, const char* source_file, const char* destinat
 error:
   dispose_of_fd(fd);
   dispose_of_smb(smb2, fh);
-  dispose_of_filename((char*)destination_file);
+  dispose_of_filename((char *)destination_file);
 
   return result_code;
 }
 
-int del(struct smb2_context* smb2, const char* filename)
-{
+int del(struct smb2_context *smb2, const char *filename) {
   int result_code = 0;
   int unlink_error = 0;
 
-  if ((unlink_error = smb2_unlink(smb2, filename)) != 0)
-  {
+  if ((unlink_error = smb2_unlink(smb2, filename)) != 0) {
     fprintf(stderr, "Unlink error %i\n", unlink_error);
     result_code = EUNLINKERROR;
   }
   return result_code;
 }
 
-int put(const char* source_file, struct smb2_context* smb2, const char* destination_file)
-{
-  struct smb2fh* fh;
+int put(const char *source_file, struct smb2_context *smb2,
+        const char *destination_file) {
+  struct smb2fh *fh;
   unsigned int count;
   int fd;
   int result_code = 0;
@@ -305,57 +275,46 @@ int put(const char* source_file, struct smb2_context* smb2, const char* destinat
   destroy_smb_t dispose_of_smb = ignore_smb;
   destroy_t dispose_of_filename = ignore_ptr;
 
-  if (!IS_VALID_FILE(source_file))
-  {
+  if (!IS_VALID_FILE(source_file)) {
     fprintf(stderr, "Invalid source path\n");
     return EINVALIDPATH;
   }
 
-  if (!IS_VALID_FILE(destination_file))
-  {
+  if (!IS_VALID_FILE(destination_file)) {
     destination_file = basename(strdup(source_file));
     dispose_of_filename = free_memory;
   }
 
   fd = open(source_file, O_RDONLY);
-  if (fd == -1)
-  {
-    fprintf(stderr, "Failed to open local file %s. Error code %i (%s)\n", source_file, errno, strerror(errno));
+  if (fd == -1) {
+    fprintf(stderr, "Failed to open local file %s. Error code %i (%s)\n",
+            source_file, errno, strerror(errno));
     return ELOCALFSERROR;
-  }
-  else
-  {
+  } else {
     dispose_of_fd = close_fd;
   }
 
   fh = smb2_open(smb2, destination_file, O_WRONLY | O_CREAT);
-  if (fh == NULL)
-  {
+  if (fh == NULL) {
     fprintf(stderr, "smb2_open failed. Error code %s\n", smb2_get_error(smb2));
     result_code = ESMBOPEN;
     goto error;
-  }
-  else
-  {
+  } else {
     dispose_of_smb = close_smb_file;
   }
 
   max_write = smb2_get_max_write_size(smb2);
-  if (max_write == 0)
-  {
+  if (max_write == 0) {
     max_write = MAXBUF; // try to ignore and continue
   }
 
-  while ((count = read(fd, buf, MAXBUF)) > 0)
-  {
-    const uint8_t* buf_start = buf;
-    do
-    {
+  while ((count = read(fd, buf, MAXBUF)) > 0) {
+    const uint8_t *buf_start = buf;
+    do {
       unsigned int delta = (count > max_write) ? max_write : count;
 
       int write_status = smb2_write(smb2, fh, buf_start, delta);
-      if (write_status < 0)
-      {
+      if (write_status < 0) {
         fprintf(stderr, "smb2_write failed. Error code %i\n", write_status);
         result_code = ESMBWRITE;
         goto error;
@@ -363,43 +322,32 @@ int put(const char* source_file, struct smb2_context* smb2, const char* destinat
 
       count -= delta;
       buf_start += delta;
-    }
-    while (count > 0);
+    } while (count > 0);
   }
 
 error:
   dispose_of_smb(smb2, fh);
   dispose_of_fd(fd);
-  dispose_of_filename((char*)destination_file);
+  dispose_of_filename((char *)destination_file);
 
   return result_code;
 }
 
-void set_password_from_env(struct smb2_context* smb2)
-{
-  char const* name = NULL;
+void set_password_from_env(struct smb2_context *smb2) {
+  char const *name = NULL;
 
   name = getenv(ENV_PASSWORD_VAR);
-  if (name != NULL)
-  {
+  if (name != NULL) {
     smb2_set_password(smb2, name);
   }
 }
 
+enum { CMD_LS = 1, CMD_GET, CMD_PUT, CMD_DEL };
 
-enum
-{
-  CMD_LS = 1,
-  CMD_GET,
-  CMD_PUT,
-  CMD_DEL
-};
-
-int main(int argc, char* argv[])
-{
-  struct smb2_context* smb2;
-  struct smb2_url* url;
-  char* command;
+int main(int argc, char *argv[]) {
+  struct smb2_context *smb2;
+  struct smb2_url *url;
+  char *command;
   char local_filename[MAXPATHSIZE + MAXFILENAMELEN + 1] = {0};
   char smb_share[MAXPATHSIZE + 1] = {0};
   int result_code = 0;
@@ -413,25 +361,20 @@ int main(int argc, char* argv[])
     return usage();
 
   command = argv[1];
-  if (strcmp(command, "ls") == 0)
-  {
+  if (strcmp(command, "ls") == 0) {
     what = CMD_LS;
     if (argc < 3)
       return usage();
 
     strncpy(smb_share, argv[2], MAXPATHSIZE);
-  }
-  else if (strcmp(command, "put") == 0)
-  {
+  } else if (strcmp(command, "put") == 0) {
     what = CMD_PUT;
     if (argc < 4)
       return usage();
 
     strncpy(local_filename, argv[2], MAXFILENAMELEN);
     strncpy(smb_share, argv[3], MAXPATHSIZE);
-  }
-  else if (strcmp(command, "get") == 0)
-  {
+  } else if (strcmp(command, "get") == 0) {
     what = CMD_GET;
     if (argc < 3)
       return usage();
@@ -439,30 +382,23 @@ int main(int argc, char* argv[])
     strncpy(smb_share, argv[2], MAXPATHSIZE);
     if (argc > 3)
       strncpy(local_filename, argv[3], MAXFILENAMELEN);
-  }
-  else if (strcmp(command, "del") == 0)
-  {
+  } else if (strcmp(command, "del") == 0) {
     what = CMD_DEL;
     if (argc < 3)
       return usage();
 
     strncpy(smb_share, argv[2], MAXPATHSIZE);
-  }
-  else
-  {
+  } else {
     fprintf(stderr, "Error: unknown command\n\n");
     return usage();
   }
 
   smb2 = smb2_init_context();
-  if (smb2 == NULL)
-  {
+  if (smb2 == NULL) {
     fprintf(stderr, "Failed to init context\n");
     result_code = ESMBPARSE;
     goto error;
-  }
-  else
-  {
+  } else {
     dispose_of_context = destroy_context;
   }
 
@@ -474,59 +410,48 @@ int main(int argc, char* argv[])
   smb2_set_authentication(smb2, SMB2_SEC_NTLMSSP);
 
   url = smb2_parse_url(smb2, smb_share);
-  if (url == NULL)
-  {
+  if (url == NULL) {
     fprintf(stderr, "Failed to parse url: %s\n", smb2_get_error(smb2));
     result_code = ESMBPARSE;
     goto error;
-  }
-  else
-  {
+  } else {
     dispose_of_url = destroy_url;
   }
 
-  if (url->domain)
-  {
+  if (url->domain) {
     smb2_set_user(smb2, url->user);
     smb2_set_domain(smb2, url->domain);
   }
 
-  if (smb2_connect_share(smb2, url->server, url->share, url->user) < 0)
-  {
+  if (smb2_connect_share(smb2, url->server, url->share, url->user) < 0) {
     fprintf(stderr, "smb2_connect_share failed. %s\n", smb2_get_error(smb2));
     result_code = ESMBCONNECT;
     goto error;
-  }
-  else
-  {
+  } else {
     dispose_of_connection = disconnect_share;
   }
 
-  switch (what)
-  {
-    case CMD_LS:
-      result_code = ls(smb2, url->path);
-      goto error; /* this command must not print anything */
+  switch (what) {
+  case CMD_LS:
+    result_code = ls(smb2, url->path);
+    goto error; /* this command must not print anything */
 
-    case CMD_PUT:
-      result_code = put(local_filename, smb2, url->path);
-      break;
+  case CMD_PUT:
+    result_code = put(local_filename, smb2, url->path);
+    break;
 
-    case CMD_GET:
-      result_code = get(smb2, url->path, local_filename);
-      break;
+  case CMD_GET:
+    result_code = get(smb2, url->path, local_filename);
+    break;
 
-    case CMD_DEL:
-      result_code = del(smb2, url->path);
-      break;
+  case CMD_DEL:
+    result_code = del(smb2, url->path);
+    break;
   }
 
-  if (result_code == 0)
-  {
+  if (result_code == 0) {
     printf("OK: command %s completed successfully\n", command);
-  }
-  else
-  {
+  } else {
     printf("ERROR: unable to execute %s\n", command);
   }
 
