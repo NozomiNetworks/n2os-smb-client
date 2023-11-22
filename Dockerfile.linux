@@ -3,6 +3,9 @@
 # Build:
 # docker build -t "smblinux:latest" -f Dockerfile.linux .
 #
+# Build with Kerberos support:
+# docker build --progress plain -t "smblinux:latest" --build-arg WITH_KERBEROS=1 -f Dockerfile.linux .
+#
 # Run with no options:
 # docker run --rm smblinux:latest
 #
@@ -15,6 +18,9 @@
 # FROM debian:bookworm-slim # no upx at the moment
 FROM debian:bullseye-slim AS builder
 
+ARG WITH_KERBEROS
+ENV WITH_KERBEROS=${WITH_KERBEROS}
+
 WORKDIR /usr/src/n2os-smb-client
 COPY . .
 
@@ -23,7 +29,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends git build-essential upx-ucl cmake libssl-dev libkrb5-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     ldconfig && \
-    ./build.linux.sh
+    ./build.linux.sh 
 
 FROM debian:bullseye-slim
 
