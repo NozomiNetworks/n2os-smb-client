@@ -132,7 +132,7 @@ int ls(struct smb2_context* smb2, const char* path)
 {
   struct smb2dir* dir;
   struct smb2dirent* ent;
-  char* link;
+  char const* link;
 
   dir = smb2_opendir(smb2, path);
   if (dir == NULL)
@@ -148,7 +148,7 @@ int ls(struct smb2_context* smb2, const char* path)
   while ((ent = smb2_readdir(smb2, dir)))
   {
     json_entry = json_object_new_object();
-    char* type;
+    char const* type;
     time_t t;
 
     t = (time_t)ent->st.smb2_mtime;
@@ -377,7 +377,7 @@ error:
 
 void set_password_from_env(struct smb2_context* smb2)
 {
-  char* name = NULL;
+  char const* name = NULL;
 
   name = getenv(ENV_PASSWORD_VAR);
   if (name != NULL)

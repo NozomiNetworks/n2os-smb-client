@@ -1,9 +1,11 @@
 name: Multi-platform build
 
 on:
-  # push:
+  push:
+    branches: master
+    tags: "*"
   workflow_dispatch:
-  # pull_request:
+  pull_request:
 
 jobs:
   build-linux:
