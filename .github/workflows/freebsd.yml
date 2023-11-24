@@ -11,11 +11,7 @@ jobs:
     name: Build on FreeBSD
     strategy:
       matrix:
-        arch:
-          - name: x86-64
-            architecture: x86-64
-          - name: arm64
-            architecture: arm64
+        arch: [x86-64, arm64]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,12 +23,12 @@ jobs:
           version: "13.2"
           shell: bash
           sync_files: true
-          architecture: ${{ matrix.arch.architecture }}
+          architecture: ${{ matrix.arch }}
           run: |
             sudo pkg install -y cmake
             ./build.bsd.sh
       - name: Store executable
         uses: actions/upload-artifact@v3
         with:
-          name: n2os_smb_client.bsd
+          name: "n2os_smb_client.bsd_${{ matrix.arch }}"
           path: bin/n2os_smb_client.bsd*

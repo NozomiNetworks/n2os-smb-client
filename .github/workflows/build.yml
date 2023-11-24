@@ -18,10 +18,15 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [build-linux, build-freebsd]
     steps:
-      - name: Download artifact - FreeBSD
+      - name: Download artifact - FreeBSD x86-64
         uses: actions/download-artifact@v3
         with:
-          name: n2os_smb_client.bsd
+          name: n2os_smb_client.bsd_x86-64
+          path: bin/
+      - name: Download artifact - FreeBSD arm64
+        uses: actions/download-artifact@v3
+        with:
+          name: n2os_smb_client.bsd_arm64
           path: bin/
       - name: Download artifact - Linux
         uses: actions/download-artifact@v3
@@ -34,6 +39,7 @@ jobs:
         with:
           files: |
             bin/n2os_smb_client.bsd
+            bin/n2os_smb_client.bsd_arm64
             bin/n2os_smb_client.linux
           draft: true # To be removed once we feel confident about it
           fail_on_unmatched_files: true
