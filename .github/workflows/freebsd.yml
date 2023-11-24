@@ -1,30 +1,38 @@
 name: FreeBSD build
 
 on:
-  workflow_dispatch: 
-  workflow_call: 
+  workflow_dispatch:
+  workflow_call:
 
 jobs:
   freebsdbuild:
     timeout-minutes: 30
     runs-on: ubuntu-22.04
     name: Build on FreeBSD
+    strategy:
+      matrix:
+        arch:
+          - name: x86-64
+            architecture: x86-64
+          - name: arm64
+            architecture: arm64
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - name: Cross Platform Action
-      uses: cross-platform-actions/action@v0.21.1
-      with:
-        operating_system: freebsd
-        version: '13.2'
-        shell: bash
-        sync_files: true
-        run: |
-          sudo pkg install -y cmake
-          ./build.bsd.sh
-    - name: Store executable
-      uses: actions/upload-artifact@v3
-      with:
-        name: n2os_smb_client.bsd
-        path: bin/n2os_smb_client.bsd
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Cross Platform Action
+        uses: cross-platform-actions/action@v0.21.1
+        with:
+          operating_system: freebsd
+          version: "13.2"
+          shell: bash
+          sync_files: true
+          architecture: ${{ matrix.arch.architecture }}
+          run: |
+            sudo pkg install -y cmake
+            ./build.bsd.sh
+      - name: Store executable
+        uses: actions/upload-artifact@v3
+        with:
+          name: n2os_smb_client.bsd
+          path: bin/n2os_smb_client.bsd*
