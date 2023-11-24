@@ -31,7 +31,7 @@ enum {
 #define MAXBUF (1024 * 64)
 #define ENV_PASSWORD_VAR "N2OS_SMB_PASSWORD"
 
-#define VERSION "0.3.4"
+#define VERSION "0.3.5"
 #define ECMDLINE 4
 #define ESMBINIT 5
 #define ESMBPARSE 6
