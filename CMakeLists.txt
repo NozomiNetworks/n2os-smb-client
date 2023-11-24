@@ -25,7 +25,7 @@ set(LIBSMB2_DIR "${PROJECT_SOURCE_DIR}/deps/libsmb2")
 message(STATUS "Lib smb2: ${LIBSMB2_DIR}")
 
 if (NOT "${CMAKE_SYSTEM}" MATCHES "Linux")
-    # freebsd specific fixes
+    # FreeBSD specific fixes
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
     add_definitions(-include freebsd_fix.h)
     add_compile_options("-Wno-macro-redefined")
@@ -50,8 +50,6 @@ endif()
 if (${BUILD_WITH_KRB5})
     message(STATUS "Kerberos support is ENABLED")
     include_directories(BEFORE SYSTEM ${GSSAPI_INCLUDE_DIR})
-    # include_directories(BEFORE SYSTEM ${GSSAPI_INCLUDE_DIR}/gssapi)
-    # include_directories(BEFORE SYSTEM ${GSSAPI_INCLUDE_DIR}/krb5/)
 else()
     message(STATUS "Kerberos support is DISABLED")
 

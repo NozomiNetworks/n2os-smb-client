@@ -1,4 +1,4 @@
-// n2os-smb-client Samba v2/3 custom client
+// n2os-smb-client SMB v2/3 custom client
 // Copyright (c) 2013-2023, Nozomi Networks Inc. All rights reserved.
 
 #include <errno.h>
@@ -13,11 +13,9 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "deps/json-c/json.h"
 #include "deps/libsmb2/include/smb2/libsmb2.h"
 #include "deps/libsmb2/include/smb2/smb2.h"
-#include "json.h"
-#include "libsmb2.h"
-#include "smb2.h"
 
 // probably an omission in libsmb2, this enumeration is part of the public
 // interface but it's defined in a private header.
@@ -33,7 +31,7 @@ enum {
 #define MAXBUF (1024 * 64)
 #define ENV_PASSWORD_VAR "N2OS_SMB_PASSWORD"
 
-#define VERSION "0.3.5"
+#define VERSION "0.3.4"
 #define ECMDLINE 4
 #define ESMBINIT 5
 #define ESMBPARSE 6
