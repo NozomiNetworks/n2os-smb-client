@@ -18,4 +18,11 @@ make
 strip -s n2os_smb_client
 upx --best n2os_smb_client
 
-cp n2os_smb_client bin/n2os_smb_client.linux
+UNAME="$(uname -p)"
+ARM_SUFFIX=""
+if [ "${UNAME}" = "aarch64" ] || [ "${UNAME}" = "arm" ]
+then
+  ARM_SUFFIX="_arm64"
+fi
+
+cp n2os_smb_client "bin/n2os_smb_client.linux${ARM_SUFFIX}"
