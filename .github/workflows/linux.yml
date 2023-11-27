@@ -37,9 +37,7 @@ jobs:
         with:
           arch: aarch64
           distro: ubuntu22.04
-          # Mount the artifacts directory as /artifacts in the container
           dockerRunArgs: |
-            --volume "${PWD}/bin:/artifacts"
             --platform linux/arm64
           install: |
             apt-get update
@@ -47,7 +45,6 @@ jobs:
             ldconfig
           run: |
             ./build.linux.sh
-            # cp bin/n2os_smb_client.linux* /artifacts/
       - name: Store executable
         uses: actions/upload-artifact@v3
         with:

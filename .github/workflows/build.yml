@@ -28,10 +28,15 @@ jobs:
         with:
           name: n2os_smb_client.bsd_arm64
           path: bin/
-      - name: Download artifact - Linux
+      - name: Download artifact - Linux x86-64
         uses: actions/download-artifact@v3
         with:
-          name: n2os_smb_client.linux
+          name: n2os_smb_client.linux_x86-64
+          path: bin/
+      - name: Download artifact - Linux arm64
+        uses: actions/download-artifact@v3
+        with:
+          name: n2os_smb_client.linux_arm64
           path: bin/
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -41,6 +46,7 @@ jobs:
             bin/n2os_smb_client.bsd
             bin/n2os_smb_client.bsd_arm64
             bin/n2os_smb_client.linux
+            bin/n2os_smb_client.linux_arm64
           draft: true # To be removed once we feel confident about it
           fail_on_unmatched_files: true
           generate_release_notes: true
