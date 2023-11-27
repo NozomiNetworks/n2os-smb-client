@@ -47,7 +47,7 @@ jobs:
             ldconfig
           run: |
             ./build.linux.sh
-            cp bin/n2os_smb_client.linux* /artifacts/
+            # cp bin/n2os_smb_client.linux* /artifacts/
       - name: Store executable
         uses: actions/upload-artifact@v3
         with:
