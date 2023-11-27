@@ -20,7 +20,7 @@ upx --best n2os_smb_client
 
 UNAME="$(uname -p)"
 ARM_SUFFIX=""
-if [ "${UNAME}" = "aarch64" ] || [ "${UNAME}" = "arm" ] || [ -z "${ENV_ARM}" ]
+if [ "${UNAME}" = "aarch64" ] || [ "${UNAME}" = "arm" ] || [ -n "${ENV_ARM}" ]
 then
   ARM_SUFFIX="_arm64"
 fi
