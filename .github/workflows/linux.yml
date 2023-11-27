@@ -19,10 +19,12 @@ jobs:
             platform: linux/amd64
             bin_name: n2os_smb_client.linux
             artifact: n2os_smb_client.linux_x86-64
+            env_arm: ""
           - name: arm64
             platform: linux/arm64
             bin_name: n2os_smb_client.linux_arm64
             artifact: n2os_smb_client.linux_arm64
+            env_arm: "1"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,9 +35,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           platforms: ${{ matrix.arch.platform }}
-      # - name: Create an artifacts directory
-      #   run: |
-      #     mkdir -p "${PWD}/artifacts"
       - name: Build and export to Docker
         uses: docker/build-push-action@v5
         with:
@@ -46,6 +45,7 @@ jobs:
           load: true
           push: false
           tags: ${{ env.IMG_TAG }}
+          build-args: ENV_ARM=${{ matrix.arch.env_arm }}
       - name: Fetch executable from the container
         run: |
           docker run --platform ${{ matrix.arch.platform }} --rm --volume "${PWD}/bin:/artifacts" ${{ env.IMG_TAG }} cp /usr/src/n2os-smb-client/bin/${{ matrix.arch.bin_name }} /artifacts
