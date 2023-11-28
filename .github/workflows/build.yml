@@ -47,6 +47,5 @@ jobs:
             bin/n2os_smb_client.bsd_arm64
             bin/n2os_smb_client.linux
             bin/n2os_smb_client.linux_arm64
-          draft: true # To be removed once we feel confident about it
           fail_on_unmatched_files: true
           generate_release_notes: true
