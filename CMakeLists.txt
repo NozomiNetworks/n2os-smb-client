@@ -25,7 +25,7 @@ set(LIBSMB2_DIR "${PROJECT_SOURCE_DIR}/deps/libsmb2")
 message(STATUS "Lib smb2: ${LIBSMB2_DIR}")
 
 if (NOT "${CMAKE_SYSTEM}" MATCHES "Linux")
-    # freebsd specific fixes
+    # FreeBSD specific fixes
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
     add_definitions(-include freebsd_fix.h)
     add_compile_options("-Wno-macro-redefined")
@@ -69,7 +69,9 @@ include_directories(${LIBJSONC_DIR})
 include_directories(${LIBSMB2_DIR}/include/smb2)
 include_directories(${LIBSMB2_DIR}/include)
 
-
+if (${BUILD_WITH_KRB5})
+    link_libraries(${GSSAPI_LIBRARY} ${KRB_LIBRARY} smb2 json-c)
+endif()
 add_executable(n2os_smb_client n2os-smb-client.c)
 
 if (${BUILD_WITH_KRB5})

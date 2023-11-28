@@ -1,0 +1,16 @@
+n2os-smb-client is released under the BSD 2-Clause License license.
+
+Included 3rd party software
+===========================
+This software includes libsmb2 and json-c, with their original repositories linked
+as github modules.
+
+libsmb2 is released under LGPL 2.1 (or later) for what concerns lib and include directories,
+and the 2-Clause BSD License for its examples directory.
+Copyright (C) 2016 by Ronnie Sahlberg <ronniesahlberg@gmail.com>
+
+json-c is release under the MIT license.
+Copyright (c) 2009-2012 Eric Haszlakiewicz
+Copyright (c) 2004, 2005 Metaparadigm Pte Ltd
+
+See their respective subdirectories for detailed license information.
