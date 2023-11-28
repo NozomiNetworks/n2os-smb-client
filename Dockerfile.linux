@@ -21,6 +21,10 @@ FROM debian:bullseye-slim AS builder
 ARG WITH_KERBEROS
 ENV WITH_KERBEROS=${WITH_KERBEROS}
 
+# Used in GHA workflow
+ARG ENV_ARM
+ENV ENV_ARM=${ENV_ARM}
+
 WORKDIR /usr/src/n2os-smb-client
 COPY . .
 

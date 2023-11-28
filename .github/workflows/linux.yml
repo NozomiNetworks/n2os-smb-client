@@ -1,28 +1,56 @@
 name: Linux build
 
 on:
-  workflow_dispatch: 
-  workflow_call: 
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  IMG_TAG: smblinux-builder:latest
 
 jobs:
-  linuxbuild:
+  linuxsetup:
     timeout-minutes: 30
     runs-on: ubuntu-22.04
     name: Build on Linux
+    strategy:
+      matrix:
+        arch:
+          - name: x86-64
+            platform: linux/amd64
+            bin_name: n2os_smb_client.linux
+            artifact: n2os_smb_client.linux_x86-64
+            env_arm: ""
+          - name: arm64
+            platform: linux/arm64
+            bin_name: n2os_smb_client.linux_arm64
+            artifact: n2os_smb_client.linux_arm64
+            env_arm: "1"
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - name: Prepare environment
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y --no-install-recommends build-essential upx-ucl cmake libssl-dev libkrb5-dev
-        sudo ldconfig
-    - name: Build
-      run: |
-        ./build.linux.sh
-    - name: Store executable
-      uses: actions/upload-artifact@v3
-      with:
-        name: n2os_smb_client.linux
-        path: bin/n2os_smb_client.linux
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: ${{ matrix.arch.platform }}
+      - name: Build and export to Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: ${{ matrix.arch.platform }}
+          file: ./Dockerfile.linux
+          target: builder
+          load: true
+          push: false
+          tags: ${{ env.IMG_TAG }}
+          build-args: ENV_ARM=${{ matrix.arch.env_arm }}
+      - name: Fetch executable from the container
+        run: |
+          docker run --platform ${{ matrix.arch.platform }} --rm --volume "${PWD}/bin:/artifacts" ${{ env.IMG_TAG }} cp /usr/src/n2os-smb-client/bin/${{ matrix.arch.bin_name }} /artifacts
+      - name: Store executable
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.arch.artifact }}
+          path: bin/${{ matrix.arch.bin_name }}
