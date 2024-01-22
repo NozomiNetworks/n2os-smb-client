@@ -57,7 +57,7 @@ operations: ls, del, get and put.
 **Note that connection password can be passed using env variable N2OS_SMB_PASSWORD**
 
 ```text
-n2os-smb-client v.0.3.5 - (c) 2020-2023 Nozomi Networks Inc.
+n2os-smb-client v.0.3.6 - (c) 2020-present Nozomi Networks Inc.
 
 Usage:
 n2os-smb-client ls <smb2-url>
