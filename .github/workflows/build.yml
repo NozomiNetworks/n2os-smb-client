@@ -19,22 +19,22 @@ jobs:
     needs: [build-linux, build-freebsd]
     steps:
       - name: Download artifact - FreeBSD x86-64
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: n2os_smb_client.bsd_x86-64
           path: bin/
       - name: Download artifact - FreeBSD arm64
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: n2os_smb_client.bsd_arm64
           path: bin/
       - name: Download artifact - Linux x86-64
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: n2os_smb_client.linux_x86-64
           path: bin/
       - name: Download artifact - Linux arm64
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: n2os_smb_client.linux_arm64
           path: bin/
