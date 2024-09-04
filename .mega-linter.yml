@@ -8,7 +8,7 @@
 DEFAULT_BRANCH: master # Usually master or main
 
 # all, none, or list of linter keys
-APPLY_FIXES: all
+APPLY_FIXES: none
 
 # If you use ENABLE variable, all other languages/formats/tooling-formats will
 # be disabled by default
