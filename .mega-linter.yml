@@ -1,0 +1,57 @@
+# Configuration file for MegaLinter
+#
+# See all available variables at https://megalinter.io/latest/config-file/ and in
+# linters documentation
+
+# VALIDATE_ALL_CODEBASE: true
+
+DEFAULT_BRANCH: master # Usually master or main
+
+# all, none, or list of linter keys
+APPLY_FIXES: all
+
+# If you use ENABLE variable, all other languages/formats/tooling-formats will
+# be disabled by default
+# ENABLE:
+
+# If you use ENABLE_LINTERS variable, all other linters will be disabled by
+# default
+# ENABLE_LINTERS:
+
+DISABLE:
+  - COPYPASTE # Comment to enable checks of excessive copy-pastes
+  - SPELL # Comment to enable checks of spelling mistakes
+
+DISABLE_LINTERS:
+  - REPOSITORY_CHECKOV
+  - REPOSITORY_DEVSKIM
+  - REPOSITORY_KICS
+  - YAML_V8R
+
+SHOW_ELAPSED_TIME: true
+FILEIO_REPORTER: false
+
+# # Uncomment if you want MegaLinter to detect errors but not block CI to pass
+# DISABLE_ERRORS: true
+
+## Common configuration options:
+# # ACTION_ACTIONLINT_CONFIG_FILE: ".github/actionlint.yaml"
+# ACTION_ACTIONLINT_ARGUMENTS: "-ignore SC2086"
+# ACTION_ACTIONLINT_DISABLE_ERRORS: true
+# MARKDOWN_MARKDOWN_LINK_CHECK_DISABLE_ERRORS: true
+# DOCKERFILE_HADOLINT_ARGUMENTS: "--ignore DL3008 --ignore DL3018"
+# DOCKERFILE_HADOLINT_DISABLE_ERRORS: true
+# YAML_YAMLLINT_DISABLE_ERRORS: true
+
+# GO_GOLANGCI_LINT_PRE_COMMANDS:
+#   - command: git config --global url."https://${GITHUB_TOKEN}@github.com".insteadOf "https://github.com" && export GO111MODULE=off
+#     cwd: "workspace"
+#     continue_if_failed: false
+#     secured_env: false
+
+EXCLUDED_DIRECTORIES:
+  - .vscode
+
+CPP_CPPLINT_FILTER_REGEX_EXCLUDE: "include/freebsd_fix.h"
+C_CPPLINT_FILTER_REGEX_EXCLUDE: "include/freebsd_fix.h"
+C_CPPLINT_DISABLE_ERRORS: true # TODO consider disabling this later

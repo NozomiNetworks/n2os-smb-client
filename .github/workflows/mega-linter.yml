@@ -1,0 +1,55 @@
+---
+name: Megalinter
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  megalinter:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run megalinter
+        uses: NozomiNetworks/nn-prodsec-actions/actions/megalinter@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Caveat: if one of the linted files is a workflow, you may get an error such as
+          # "refusing to allow a GitHub App to create or update workflow ... without `workflows` permission"
+          # if megalinter tries to open a PR to fix it (default behavior).
+          # If that is the case, then you can create and use a new secret token with at least the following permissions:
+          # contents:write, workflows:write
+          # Otherwise, you can lint and fix the workflow file manually and re-run.
+
+          ### Additional possible options, not mandatory:
+          #
+          # validate_all: "true" # default, to validate all code
+          ## validate_all: "false" # to validate only changed code
+          validate_all: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+          #
+          # apply_fixes: "all" # default
+          ## apply_fixes: "JAVASCRIPT_ES,MARKDOWN_MARKDOWNLINT" # apply only the fixes for the linters in the list
+          #
+          # apply_fixes_mode: "pull_request" # default, the only allowed value
+          #
+          # apply_fixes_event: "pull_request" # default. Possible values: all, push, pull_request, none
+          ## apply_fixes_event: "none" # don't apply fixes
+          #
+          # flavor: "all" # Megalinter flavor to use. Supported values: all (default), ruby, go, javascript.
+          flavor: "all"
