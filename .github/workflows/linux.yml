@@ -50,7 +50,7 @@ jobs:
         run: |
           docker run --platform ${{ matrix.arch.platform }} --rm --volume "${PWD}/bin:/artifacts" ${{ env.IMG_TAG }} cp /usr/src/n2os-smb-client/bin/${{ matrix.arch.bin_name }} /artifacts
       - name: Store executable
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.arch.artifact }}
           path: bin/${{ matrix.arch.bin_name }}
