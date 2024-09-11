@@ -34,21 +34,6 @@ FILEIO_REPORTER: false
 # # Uncomment if you want MegaLinter to detect errors but not block CI to pass
 # DISABLE_ERRORS: true
 
-## Common configuration options:
-# # ACTION_ACTIONLINT_CONFIG_FILE: ".github/actionlint.yaml"
-# ACTION_ACTIONLINT_ARGUMENTS: "-ignore SC2086"
-# ACTION_ACTIONLINT_DISABLE_ERRORS: true
-# MARKDOWN_MARKDOWN_LINK_CHECK_DISABLE_ERRORS: true
-# DOCKERFILE_HADOLINT_ARGUMENTS: "--ignore DL3008 --ignore DL3018"
-# DOCKERFILE_HADOLINT_DISABLE_ERRORS: true
-# YAML_YAMLLINT_DISABLE_ERRORS: true
-
-# GO_GOLANGCI_LINT_PRE_COMMANDS:
-#   - command: git config --global url."https://${GITHUB_TOKEN}@github.com".insteadOf "https://github.com" && export GO111MODULE=off
-#     cwd: "workspace"
-#     continue_if_failed: false
-#     secured_env: false
-
 EXCLUDED_DIRECTORIES:
   - .vscode
 
