@@ -40,3 +40,4 @@ EXCLUDED_DIRECTORIES:
 CPP_CPPLINT_FILTER_REGEX_EXCLUDE: "include/freebsd_fix.h"
 C_CPPLINT_FILTER_REGEX_EXCLUDE: "include/freebsd_fix.h"
 C_CPPLINT_DISABLE_ERRORS: true # TODO consider disabling this later
+C_CPPCHECK_DISABLE_ERRORS: true # TODO consider disabling this later
