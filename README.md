@@ -41,13 +41,6 @@ A build script is provided in [build.linux.sh](build.linux.sh).
 A [Dockerfile](Dockerfile.linux) is also provided.
 Build and usage examples are provided in the [Dockerfile](Dockerfile.linux) itself.
 
-### Kerberos support
-
-To build with kerberos support, provided that the dependencies are met, just add
-to the cmake command-line `-DBUILD_WITH_KRB5=true`. For the Linux
-[Dockerfile](Dockerfile.linux) you can use
-the build parameter `WITH_KERBEROS`.
-
 ## Usage
 
 Usage is pretty simple. This client right now can just do four simple

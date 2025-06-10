@@ -14,16 +14,8 @@
 #include <unistd.h>
 
 #include "deps/json-c/json.h"
-#include "deps/libsmb2/include/smb2/libsmb2.h"
 #include "deps/libsmb2/include/smb2/smb2.h"
-
-// probably an omission in libsmb2, this enumeration is part of the public
-// interface but it's defined in a private header.
-enum {
-  SMB2_SEC_UNDEFINED = 0,
-  SMB2_SEC_NTLMSSP,
-  SMB2_SEC_KRB5,
-};
+#include "deps/libsmb2/include/smb2/libsmb2.h"
 
 #define DEFAULT_TIMEOUT 60
 #define MAXPATHSIZE 1024
