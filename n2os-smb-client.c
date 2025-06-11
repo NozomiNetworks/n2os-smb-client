@@ -396,7 +396,7 @@ int main(int argc, char *argv[]) {
 
   smb2_set_security_mode(smb2, SMB2_NEGOTIATE_SIGNING_ENABLED);
   smb2_set_timeout(smb2, DEFAULT_TIMEOUT);
-  
+
   char *krb5_suffix = strstr(smb_share, "?sec=krb5");
   if (krb5_suffix != NULL) {
     printf("Using Kerberos authentication\n");
