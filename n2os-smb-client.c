@@ -396,8 +396,18 @@ int main(int argc, char *argv[]) {
 
   smb2_set_security_mode(smb2, SMB2_NEGOTIATE_SIGNING_ENABLED);
   smb2_set_timeout(smb2, DEFAULT_TIMEOUT);
-  // unless the url ends in '?sec=krb5', default to ntlm
-  smb2_set_authentication(smb2, SMB2_SEC_NTLMSSP);
+  
+  // Check if the URL ends with '?sec=krb5' to enable Kerberos authentication
+  char *krb5_suffix = strstr(smb_share, "?sec=krb5");
+  if (krb5_suffix != NULL) {
+    // Enable Kerberos authentication
+    smb2_set_authentication(smb2, SMB2_SEC_KRB5);
+    // Remove the suffix from the URL for proper parsing
+    *krb5_suffix = '\0';
+  } else {
+    // Default to NTLM authentication
+    smb2_set_authentication(smb2, SMB2_SEC_NTLMSSP);
+  }
 
   url = smb2_parse_url(smb2, smb_share);
   if (url == NULL) {
