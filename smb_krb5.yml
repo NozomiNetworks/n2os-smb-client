@@ -1,29 +1,26 @@
-version: '3.8'
-
 services:
   samba-ad:
     image: nowsci/samba-domain:latest
-    container_name: samba-ad
+    container_name: samba-ad.example.com
     privileged: true
+    hostname: samba-ad.example.com
     environment:
       - DOMAIN=EXAMPLE.COM
+      - DOMAIN_DC=dc=example,dc=com
+      - DOMAIN_EMAIL=example.com
       - DOMAINPASS=YourStrongPassword123_
-      - DNSFORWARDER=8.8.8.8
-    ports:
-      - "88:88"
-      - "88:88/udp"
-      - "135:135"
-      - "137-138:137-138/udp"
-      - "139:139"
-      - "389:389"
-      - "389:389/udp"
-      - "445:445"
-      - "464:464"
-      - "464:464/udp"
-      - "636:636"
-      - "3268-3269:3268-3269"
+    dns:
+      - 127.0.0.1
     volumes:
       - samba_data:/var/lib/samba  # Use Docker volume instead of host path
+      - ./myshare:/srv/myshare
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./smb.conf:/etc/samba/smb.conf
+
+    networks:
+      samba_net:
+        ipv4_address: 172.28.1.10
 
   samba-client:
     image: smblinux:latest
@@ -31,6 +28,23 @@ services:
     entrypoint: /bin/bash
     stdin_open: true
     tty: true
+    dns:
+      - 172.28.1.10  # Point to the Samba AD DC
+    networks:
+      samba_net:
+        ipv4_address: 172.28.1.11
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./krb5.conf:/etc/krb5.conf:ro
+
+networks:
+  samba_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.1.0/24
 
 volumes:
   samba_data:
+  myshare:

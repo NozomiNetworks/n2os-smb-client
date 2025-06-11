@@ -4,3 +4,4 @@ bin/
 build/
 .cache/
 megalinter-reports/
+smb.conf

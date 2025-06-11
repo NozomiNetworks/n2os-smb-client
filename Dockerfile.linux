@@ -61,10 +61,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     krb5-user \
     iputils-ping \
+    smbclient \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-RUN printf '[libdefaults]\n    default_realm = EXAMPLE.COM\n    dns_lookup_realm = false\n    dns_lookup_kdc = false\n\n[realms]\n    EXAMPLE.COM = {\n        kdc = samba-ad\n        admin_server = samba-ad\n    }\n\n[domain_realm]\n    .example.com = EXAMPLE.COM\n    example.com = EXAMPLE.COM\n' > /etc/krb5.conf
 
 USER nonroot
 WORKDIR /home/nonroot
