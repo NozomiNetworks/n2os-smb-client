@@ -14,6 +14,9 @@
 #
 # Interactive shell on the container image:
 # docker run -ti --entrypoint /bin/bash smblinux:latest
+#
+# krb5 test environment
+# docker run -ti --entrypoint /bin/bash smblinux:latest
 
 # FROM debian:bookworm-slim # no upx at the moment
 FROM debian:bullseye-slim AS builder
@@ -53,6 +56,15 @@ COPY --from=builder /usr/src/n2os-smb-client/bin/n2os_smb_client.linux* /usr/bin
 RUN if [ "$ENV_ARM" = "1" ]; then \
       mv /usr/bin/n2os_smb_client.linux_arm64 /usr/bin/n2os_smb_client.linux ; \
     fi
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    krb5-user \
+    iputils-ping \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN printf '[libdefaults]\n    default_realm = EXAMPLE.COM\n    dns_lookup_realm = false\n    dns_lookup_kdc = false\n\n[realms]\n    EXAMPLE.COM = {\n        kdc = samba-ad\n        admin_server = samba-ad\n    }\n\n[domain_realm]\n    .example.com = EXAMPLE.COM\n    example.com = EXAMPLE.COM\n' > /etc/krb5.conf
 
 USER nonroot
 WORKDIR /home/nonroot

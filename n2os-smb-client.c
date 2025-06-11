@@ -392,20 +392,17 @@ int main(int argc, char *argv[]) {
     dispose_of_context = destroy_context;
   }
 
-  set_password_from_env(smb2);
-
   smb2_set_security_mode(smb2, SMB2_NEGOTIATE_SIGNING_ENABLED);
   smb2_set_timeout(smb2, DEFAULT_TIMEOUT);
   
-  // Check if the URL ends with '?sec=krb5' to enable Kerberos authentication
   char *krb5_suffix = strstr(smb_share, "?sec=krb5");
   if (krb5_suffix != NULL) {
-    // Enable Kerberos authentication
+    printf("Using Kerberos authentication\n");
     smb2_set_authentication(smb2, SMB2_SEC_KRB5);
-    // Remove the suffix from the URL for proper parsing
     *krb5_suffix = '\0';
   } else {
-    // Default to NTLM authentication
+    printf("Using NTLM authentication\n");
+    set_password_from_env(smb2);
     smb2_set_authentication(smb2, SMB2_SEC_NTLMSSP);
   }
 
@@ -418,7 +415,7 @@ int main(int argc, char *argv[]) {
     dispose_of_url = destroy_url;
   }
 
-  if (url->domain) {
+  if (url->domain && krb5_suffix != NULL) {
     smb2_set_user(smb2, url->user);
     smb2_set_domain(smb2, url->domain);
   }

@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  samba-ad:
+    image: nowsci/samba-domain:latest
+    container_name: samba-ad
+    privileged: true
+    environment:
+      - DOMAIN=EXAMPLE.COM
+      - DOMAINPASS=YourStrongPassword123_
+      - DNSFORWARDER=8.8.8.8
+    ports:
+      - "88:88"
+      - "88:88/udp"
+      - "135:135"
+      - "137-138:137-138/udp"
+      - "139:139"
+      - "389:389"
+      - "389:389/udp"
+      - "445:445"
+      - "464:464"
+      - "464:464/udp"
+      - "636:636"
+      - "3268-3269:3268-3269"
+    volumes:
+      - samba_data:/var/lib/samba  # Use Docker volume instead of host path
+
+  samba-client:
+    image: smblinux:latest
+    container_name: samba-client
+    entrypoint: /bin/bash
+    stdin_open: true
+    tty: true
+
+volumes:
+  samba_data:
