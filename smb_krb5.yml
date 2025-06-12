@@ -16,7 +16,6 @@ services:
       - ./myshare:/srv/myshare
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./smb.conf:/etc/samba/smb.conf
 
     networks:
       samba_net:
@@ -25,6 +24,8 @@ services:
   samba-client:
     image: smblinux:latest
     container_name: samba-client
+    environment:
+      - N2OS_SMB_PASSWORD=YourStrongPassword123_
     entrypoint: /bin/bash
     stdin_open: true
     tty: true

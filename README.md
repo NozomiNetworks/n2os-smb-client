@@ -76,9 +76,16 @@ Exit codes:
 15 - SMB unlink error
 ```
 
-### Kerberos test
+## Test Env
 
 Launch compose file: ```docker compose -f smb_krb5.yml up```
+
+### Basic Auth
+
+You can use n2os-smb-client in /usr/bin folder. ex:
+```/usr/bin/n2os_smb_client.linux ls "smb://Administrator@samba-ad.example.com/sysvol"```
+
+### Kerberos
 
 Execute ```kinit Administrator@EXAMPLE.COM```
 on client (using the password defined in compose file)
