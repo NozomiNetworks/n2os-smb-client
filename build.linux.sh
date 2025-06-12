@@ -6,13 +6,7 @@ set -ex
 
 # git submodule update --init --recursive
 
-BUILD_KBT=""
-# shellcheck disable=SC2154
-if [ "${WITH_KERBEROS}" = "1" ]; then
-	BUILD_KBT="-DBUILD_WITH_KRB5=true"
-fi
-
-cmake . -DCMAKE_BUILD_TYPE=Release "${BUILD_KBT}"
+cmake . -DCMAKE_BUILD_TYPE=Release
 make
 strip -s n2os_smb_client
 upx --best n2os_smb_client
@@ -24,3 +18,5 @@ if [ "${UNAME}" = "aarch64" ] || [ "${UNAME}" = "arm" ] || [ -n "${ENV_ARM}" ]; 
 fi
 
 cp n2os_smb_client "bin/n2os_smb_client.linux${ARM_SUFFIX}"
+
+echo "Binary copied to: $(pwd)/bin/n2os_smb_client.linux${ARM_SUFFIX}"

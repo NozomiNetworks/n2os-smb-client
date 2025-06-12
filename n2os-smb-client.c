@@ -14,16 +14,10 @@
 #include <unistd.h>
 
 #include "deps/json-c/json.h"
-#include "deps/libsmb2/include/smb2/libsmb2.h"
+// clang-format off
 #include "deps/libsmb2/include/smb2/smb2.h"
-
-// probably an omission in libsmb2, this enumeration is part of the public
-// interface but it's defined in a private header.
-enum {
-  SMB2_SEC_UNDEFINED = 0,
-  SMB2_SEC_NTLMSSP,
-  SMB2_SEC_KRB5,
-};
+#include "deps/libsmb2/include/smb2/libsmb2.h"
+// clang-format on
 
 #define DEFAULT_TIMEOUT 60
 #define MAXPATHSIZE 1024
@@ -400,12 +394,19 @@ int main(int argc, char *argv[]) {
     dispose_of_context = destroy_context;
   }
 
-  set_password_from_env(smb2);
-
   smb2_set_security_mode(smb2, SMB2_NEGOTIATE_SIGNING_ENABLED);
   smb2_set_timeout(smb2, DEFAULT_TIMEOUT);
-  // unless the url ends in '?sec=krb5', default to ntlm
-  smb2_set_authentication(smb2, SMB2_SEC_NTLMSSP);
+
+  char *krb5_suffix = strstr(smb_share, "?sec=krb5");
+  if (krb5_suffix != NULL) {
+    printf("Using Kerberos authentication\n");
+    smb2_set_authentication(smb2, SMB2_SEC_KRB5);
+    *krb5_suffix = '\0';
+  } else {
+    printf("Using NTLM authentication\n");
+    set_password_from_env(smb2);
+    smb2_set_authentication(smb2, SMB2_SEC_NTLMSSP);
+  }
 
   url = smb2_parse_url(smb2, smb_share);
   if (url == NULL) {
@@ -416,7 +417,7 @@ int main(int argc, char *argv[]) {
     dispose_of_url = destroy_url;
   }
 
-  if (url->domain) {
+  if (url->domain && krb5_suffix != NULL) {
     smb2_set_user(smb2, url->user);
     smb2_set_domain(smb2, url->domain);
   }
