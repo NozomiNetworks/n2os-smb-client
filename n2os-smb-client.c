@@ -25,7 +25,7 @@
 #define MAXBUF (1024 * 64)
 #define ENV_PASSWORD_VAR "N2OS_SMB_PASSWORD"
 
-#define VERSION "0.3.6"
+#define VERSION "0.3.7"
 #define ECMDLINE 4
 #define ESMBINIT 5
 #define ESMBPARSE 6
@@ -417,9 +417,12 @@ int main(int argc, char *argv[]) {
     dispose_of_url = destroy_url;
   }
 
-  if (url->domain && krb5_suffix != NULL) {
-    smb2_set_user(smb2, url->user);
+  if (url->domain) {
     smb2_set_domain(smb2, url->domain);
+  }
+
+  if (url->user) {
+    smb2_set_user(smb2, url->user);
   }
 
   if (smb2_connect_share(smb2, url->server, url->share, url->user) < 0) {
