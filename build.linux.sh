@@ -18,5 +18,3 @@ if [ "${UNAME}" = "aarch64" ] || [ "${UNAME}" = "arm" ] || [ -n "${ENV_ARM}" ]; 
 fi
 
 cp n2os_smb_client "bin/n2os_smb_client.linux${ARM_SUFFIX}"
-
-echo "Binary copied to: $(pwd)/bin/n2os_smb_client.linux${ARM_SUFFIX}"
