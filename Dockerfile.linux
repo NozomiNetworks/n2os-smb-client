@@ -14,9 +14,6 @@
 #
 # Interactive shell on the container image:
 # docker run -ti --entrypoint /bin/bash smblinux:latest
-#
-# krb5 test environment
-# docker run -ti --entrypoint /bin/bash smblinux:latest
 
 # FROM debian:bookworm-slim # no upx at the moment
 FROM debian:bullseye-slim AS builder
@@ -28,16 +25,31 @@ ENV ENV_ARM=${ENV_ARM}
 WORKDIR /usr/src/n2os-smb-client
 COPY . .
 
+# Choose Kerberos implementation: "heimdal" or "mit"
+ARG KRB_IMPL=mit
+
+# Install dependencies based on selected Kerberos implementation
 # hadolint ignore=DL3008
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    git \
-    build-essential \
-    upx-ucl \
-    cmake \
-    libssl-dev \
-    heimdal-dev \
-    && apt-get remove --purge -y libkrb5-3 libkrb5-dev krb5-user krb5-config || true \
+    if [ "$KRB_IMPL" = "heimdal" ]; then \
+        apt-get install -y --no-install-recommends \
+            git \
+            build-essential \
+            upx-ucl \
+            cmake \
+            libssl-dev \
+            heimdal-dev ; \
+    else \
+        apt-get install -y --no-install-recommends \
+            git \
+            build-essential \
+            upx-ucl \
+            cmake \
+            libssl-dev \
+            libkrb5-dev \
+            libgssapi-krb5-2 ; \
+    fi && \
+    apt-get remove --purge -y libkrb5-3 libkrb5-dev krb5-user krb5-config || true \
     && apt-get autoremove --purge -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
@@ -61,8 +73,6 @@ RUN if [ "$ENV_ARM" = "1" ]; then \
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     heimdal-clients \
-    && apt-get remove --purge -y libkrb5-3 libkrb5-dev krb5-user krb5-config || true \
-    && apt-get autoremove --purge -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
