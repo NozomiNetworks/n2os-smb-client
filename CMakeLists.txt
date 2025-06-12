@@ -12,9 +12,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Disable shared libs")
 
-# Add module path for FindLibKrb5.cmake
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/deps/libsmb2/cmake/Modules/")
-
 set(LIBJSONC_DIR "${PROJECT_SOURCE_DIR}/deps/json-c")
 message(STATUS "Lib json-c: ${LIBJSONC_DIR}")
 add_subdirectory(${LIBJSONC_DIR})
