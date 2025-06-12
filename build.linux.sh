@@ -6,7 +6,7 @@ set -ex
 
 # git submodule update --init --recursive
 
-cmake . -DCMAKE_BUILD_TYPE=Release
+cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DCMAKE_EXE_LINKER_FLAGS="-static-libgcc"
 make
 strip -s n2os_smb_client
 upx --best n2os_smb_client
@@ -17,6 +17,7 @@ if [ "${UNAME}" = "aarch64" ] || [ "${UNAME}" = "arm" ] || [ -n "${ENV_ARM}" ]; 
 	ARM_SUFFIX="_arm64"
 fi
 
-cp n2os_smb_client "bin/n2os_smb_client.linux${ARM_SUFFIX}"
+ldd n2os_smb_client || echo "Binary is statically linked, no dynamic dependencies found."
 
-echo "Binary copied to: $(pwd)/bin/n2os_smb_client.linux${ARM_SUFFIX}"
+DEST_FILE="bin/n2os_smb_client.linux${ARM_SUFFIX}"
+cp n2os_smb_client "${DEST_FILE}"

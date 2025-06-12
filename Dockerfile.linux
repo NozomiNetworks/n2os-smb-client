@@ -14,9 +14,6 @@
 #
 # Interactive shell on the container image:
 # docker run -ti --entrypoint /bin/bash smblinux:latest
-#
-# krb5 test environment
-# docker run -ti --entrypoint /bin/bash smblinux:latest
 
 # FROM debian:bookworm-slim # no upx at the moment
 FROM debian:bullseye-slim AS builder
