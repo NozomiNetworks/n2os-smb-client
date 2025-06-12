@@ -3,7 +3,17 @@ set -e
 
 # git submodule update --init --recursive
 
-cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DCMAKE_EXE_LINKER_FLAGS="-static-libgcc"
+# FreeBSD-specific options for static linking
+export LDFLAGS="-static"
+export CFLAGS="-static"
+
+# Use FreeBSD-specific CMake configuration
+cmake . \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DCMAKE_EXE_LINKER_FLAGS="-static" \
+  -DCMAKE_FIND_LIBRARY_SUFFIXES=".a"
+
 make
 strip -s n2os_smb_client
 

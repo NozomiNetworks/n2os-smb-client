@@ -6,7 +6,7 @@ set -ex
 
 # git submodule update --init --recursive
 
-cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DCMAKE_EXE_LINKER_FLAGS="-static-libgcc"
+cmake . -DCMAKE_BUILD_TYPE=Release
 make
 strip -s n2os_smb_client
 upx --best n2os_smb_client
