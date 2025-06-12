@@ -24,6 +24,8 @@ services:
   samba-client:
     image: smblinux:latest
     container_name: samba-client
+    environment:
+      - N2OS_SMB_PASSWORD=YourStrongPassword123_
     entrypoint: /bin/bash
     stdin_open: true
     tty: true
