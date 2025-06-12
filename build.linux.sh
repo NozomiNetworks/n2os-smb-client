@@ -17,4 +17,7 @@ if [ "${UNAME}" = "aarch64" ] || [ "${UNAME}" = "arm" ] || [ -n "${ENV_ARM}" ]; 
 	ARM_SUFFIX="_arm64"
 fi
 
-cp n2os_smb_client "bin/n2os_smb_client.linux${ARM_SUFFIX}"
+ldd n2os_smb_client || echo "Binary is statically linked, no dynamic dependencies found."
+
+DEST_FILE="bin/n2os_smb_client.linux${ARM_SUFFIX}"
+cp n2os_smb_client "${DEST_FILE}"
