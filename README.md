@@ -28,7 +28,7 @@ A build script is provided in [build.bsd.sh](build.bsd.sh).
 ```bash
 docker run -it -v $(pwd):/n2os-smb-client debian:bullseye-slim /bin/bash
 apt update
-apt install -y build-essential upx-ucl cmake libssl-dev libkrb5-dev
+apt install -y build-essential upx-ucl cmake libssl-dev
 cd /n2os-smb-client
 cmake . -DCMAKE_BUILD_TYPE=Release
 make
