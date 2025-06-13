@@ -2,10 +2,21 @@ name: Linux build
 
 on:
   workflow_dispatch:
+    inputs:
+      krb_impl:
+        description: 'Kerberos implementation (MIT or Heimdal)'
+        required: true
+        type: string
   workflow_call:
+    inputs:
+      krb_impl:
+        description: 'Kerberos implementation (MIT or Heimdal)'
+        required: true
+        type: string
 
 env:
   IMG_TAG: smblinux-builder:latest
+  KRB_IMPL: ${{ github.event.inputs.krb_impl || inputs.krb_impl }}
 
 jobs:
   linuxsetup:
@@ -45,7 +56,9 @@ jobs:
           load: true
           push: false
           tags: ${{ env.IMG_TAG }}
-          build-args: ENV_ARM=${{ matrix.arch.env_arm }}
+          build-args: |
+            ENV_ARM=${{ matrix.arch.env_arm }}
+            KRB_IMPL=${{ env.KRB_IMPL }}
       - name: Fetch executable from the container
         run: |
           docker run --platform ${{ matrix.arch.platform }} --rm --volume "${PWD}/bin:/artifacts" ${{ env.IMG_TAG }} cp /usr/src/n2os-smb-client/bin/${{ matrix.arch.bin_name }} /artifacts

@@ -2,13 +2,25 @@ name: FreeBSD build
 
 on:
   workflow_dispatch:
+    inputs:
+      krb_impl:
+        description: 'Kerberos implementation (MIT or Heimdal)'
+        required: true
+        type: string
   workflow_call:
+    inputs:
+      krb_impl:
+        description: 'Kerberos implementation (MIT or Heimdal)'
+        required: true
+        type: string
 
 jobs:
   freebsdbuild:
     timeout-minutes: 30
     runs-on: ubuntu-22.04
     name: Build on FreeBSD
+    env:
+      KRB_IMPL: ${{ github.event.inputs.krb_impl || inputs.krb_impl }}
     strategy:
       matrix:
         arch: [x86-64, arm64]
@@ -25,7 +37,10 @@ jobs:
           sync_files: true
           architecture: ${{ matrix.arch }}
           run: |
-            sudo pkg install -y cmake krb5
+            sudo pkg install -y cmake
+            if [ "${{ env.KRB_IMPL }}" = "MIT" ]; then
+              sudo pkg install -y krb5
+            fi
             ./build.bsd.sh
       - name: Store executable
         uses: actions/upload-artifact@v4
