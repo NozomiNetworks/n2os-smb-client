@@ -38,7 +38,8 @@ jobs:
           architecture: ${{ matrix.arch }}
           run: |
             sudo pkg install -y cmake
-            if [ "${{ env.KRB_IMPL }}" = "MIT" ]; then
+            export KRB_IMPL="${{ env.KRB_IMPL }}"
+            if [ "${KRB_IMPL}" = "MIT" ]; then
               sudo pkg install -y krb5
             fi
             ./build.bsd.sh
