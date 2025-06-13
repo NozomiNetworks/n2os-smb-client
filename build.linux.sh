@@ -6,7 +6,7 @@ set -ex
 
 # git submodule update --init --recursive
 
-cmake . -DCMAKE_BUILD_TYPE=Release
+cmake . -DCMAKE_BUILD_TYPE=Release -DKRB_IMPL="${KRB_IMPL}"
 make
 strip -s n2os_smb_client
 upx --best n2os_smb_client

@@ -1,15 +1,30 @@
 message(STATUS "Looking for Kerberos libraries...")
+message(STATUS "KRB_IMPL variable value: ${KRB_IMPL}")
 
-find_path(LibKrb5_INCLUDE_DIR
-    NAMES krb5.h krb5-types.h
-    PATHS
-        ${LibKrb5_ROOT_DIR}/include
-        /usr/include/heimdal
-        /usr/local/include/heimdal
-)
+# Get KRB_IMPL from environment or cache
+string(TOUPPER "${KRB_IMPL}" KRB_IMPL_UPPER)
+message(STATUS "Kerberos implementation selected: ${KRB_IMPL_UPPER}")
 
-# If Heimdal headers not found, try MIT Kerberos locations
-if(NOT LibKrb5_INCLUDE_DIR)
+if(KRB_IMPL_UPPER STREQUAL "HEIMDAL")
+    find_path(LibKrb5_INCLUDE_DIR
+        NAMES krb5.h krb5-types.h
+        PATHS
+            ${LibKrb5_ROOT_DIR}/include
+            /usr/include/heimdal
+            /usr/local/include/heimdal
+    )
+    find_library(LibKrb5_LIBRARY
+        NAMES krb5 libkrb5
+        PATHS
+            ${LibKrb5_ROOT_DIR}/lib
+            ${LibKrb5_ROOT_DIR}/lib/heimdal
+            /usr/lib/heimdal
+            /usr/lib/x86_64-linux-gnu/heimdal
+            /usr/lib/aarch64-linux-gnu/heimdal
+            /usr/local/lib/heimdal
+    )
+    set(LibKrb5_IMPL "Heimdal")
+elseif(KRB_IMPL_UPPER STREQUAL "MIT")
     find_path(LibKrb5_INCLUDE_DIR
         NAMES krb5.h
         PATHS
@@ -18,22 +33,6 @@ if(NOT LibKrb5_INCLUDE_DIR)
             /usr/include/krb5
             /usr/local/include
     )
-endif()
-
-# Check Heimdal lib paths first
-find_library(LibKrb5_LIBRARY
-    NAMES krb5 libkrb5
-    PATHS
-        ${LibKrb5_ROOT_DIR}/lib
-        ${LibKrb5_ROOT_DIR}/lib/heimdal
-        /usr/lib/heimdal
-        /usr/lib/x86_64-linux-gnu/heimdal
-        /usr/lib/aarch64-linux-gnu/heimdal
-        /usr/local/lib/heimdal
-)
-
-# If Heimdal lib not found, try MIT Kerberos locations
-if(NOT LibKrb5_LIBRARY)
     find_library(LibKrb5_LIBRARY
         NAMES krb5 libkrb5
         PATHS
@@ -43,15 +42,9 @@ if(NOT LibKrb5_LIBRARY)
             /usr/lib/aarch64-linux-gnu
             /usr/local/lib
     )
-endif()
-
-# Determine which Kerberos implementation we found
-if(LibKrb5_INCLUDE_DIR AND LibKrb5_LIBRARY)
-    if(EXISTS "${LibKrb5_INCLUDE_DIR}/krb5-types.h")
-        set(LibKrb5_IMPL "Heimdal")
-    else()
-        set(LibKrb5_IMPL "MIT")
-    endif()
+    set(LibKrb5_IMPL "MIT")
+else()
+    message(FATAL_ERROR "Unknown Kerberos implementation: ${KRB_IMPL}")
 endif()
 
 include(FindPackageHandleStandardArgs)

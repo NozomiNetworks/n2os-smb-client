@@ -10,7 +10,7 @@ services:
       - DOMAIN_EMAIL=example.com
       - DOMAINPASS=YourStrongPassword123_
     dns:
-      - 127.0.0.1
+      - 127.0.0.1   
     volumes:
       - samba_data:/var/lib/samba  # Use Docker volume instead of host path
       - ./myshare:/srv/myshare
