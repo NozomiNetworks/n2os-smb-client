@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       krb_impl:
-        description: 'Kerberos implementation (MIT or Heimdal)'
+        description: 'Kerberos implementation (MIT or HEIMDAL)'
         required: true
         type: string
   workflow_call:
     inputs:
       krb_impl:
-        description: 'Kerberos implementation (MIT or Heimdal)'
+        description: 'Kerberos implementation (MIT or HEIMDAL)'
         required: true
         type: string
 
