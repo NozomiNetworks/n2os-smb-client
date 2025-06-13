@@ -25,7 +25,7 @@ jobs:
           sync_files: true
           architecture: ${{ matrix.arch }}
           run: |
-            sudo pkg install -y cmake heimdal
+            sudo pkg install -y cmake krb5
             ./build.bsd.sh
       - name: Store executable
         uses: actions/upload-artifact@v4

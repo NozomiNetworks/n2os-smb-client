@@ -26,7 +26,7 @@ WORKDIR /usr/src/n2os-smb-client
 COPY . .
 
 # Choose Kerberos implementation: "heimdal" or "mit"
-ARG KRB_IMPL=heimdal
+ARG KRB_IMPL=mit
 
 # Install dependencies based on selected Kerberos implementation
 # hadolint ignore=DL3008
