@@ -26,7 +26,7 @@ WORKDIR /usr/src/n2os-smb-client
 COPY . .
 
 # Choose Kerberos implementation: "heimdal" or "mit"
-ARG KRB_IMPL=mit
+ARG KRB_IMPL=heimdal
 
 # Install dependencies based on selected Kerberos implementation
 # hadolint ignore=DL3008
@@ -71,10 +71,12 @@ RUN if [ "$ENV_ARM" = "1" ]; then \
     fi
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    heimdal-clients \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    if [ "$KRB_IMPL" = "heimdal" ]; then \
+        apt-get install -y --no-install-recommends heimdal-clients ; \
+    else \
+        apt-get install -y --no-install-recommends krb5-user ; \
+    fi && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 USER nonroot
 WORKDIR /home/nonroot
