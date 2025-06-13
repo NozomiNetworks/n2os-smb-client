@@ -16,43 +16,28 @@ set(LIBJSONC_DIR "${PROJECT_SOURCE_DIR}/deps/json-c")
 message(STATUS "Lib json-c: ${LIBJSONC_DIR}")
 add_subdirectory(${LIBJSONC_DIR})
 
-
 set(LIBSMB2_DIR "${PROJECT_SOURCE_DIR}/deps/libsmb2")
 message(STATUS "Lib smb2: ${LIBSMB2_DIR}")
-
-# Check if ENV_ARM is set to 1
-if(DEFINED ENV{ENV_ARM} AND "$ENV{ENV_ARM}" STREQUAL "1")
-    set(ARCH_LIB_DIR "aarch64-linux-gnu")
-    message(STATUS "Building for ARM64 architecture")
-else()
-    set(ARCH_LIB_DIR "x86_64-linux-gnu")
-    message(STATUS "Building for x86_64 architecture")
-endif()
 
 if (NOT "${CMAKE_SYSTEM}" MATCHES "Linux")
     # FreeBSD specific fixes
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
     add_definitions(-include freebsd_fix.h)
     add_compile_options("-Wno-macro-redefined")
-
-    # FreeBSD Heimdal Kerberos paths (instead of MIT)
-    message(STATUS "Using Heimdal Kerberos on FreeBSD")
-    set(GSSAPI_INCLUDE_DIR "/usr/include")
-    set(GSSAPI_LIBRARIES "/usr/lib")
-    set(GSSAPI_LIBRARY "/usr/lib/libgssapi.so")
-    set(KRB_LIBRARY "/usr/lib/libkrb5.so")
-else()
-    # Linux Kerberos paths (MIT)
-    message(STATUS "Using MIT Kerberos on Linux")
-    set(GSSAPI_INCLUDE_DIR "/usr/include")
-    set(GSSAPI_LIBRARIES "/usr/lib/${ARCH_LIB_DIR}/")
-    set(GSSAPI_LIBRARY "/usr/lib/${ARCH_LIB_DIR}/libgssapi_krb5.so.2")
-    set(KRB_LIBRARY "/usr/lib/${ARCH_LIB_DIR}/libkrb5.so.3")
 endif()
 
-message(STATUS "Kerberos support is ENABLED")
-message(STATUS "Using libraries from: ${GSSAPI_LIBRARIES}")
-include_directories(BEFORE SYSTEM ${GSSAPI_INCLUDE_DIR})
+include(${CMAKE_CURRENT_LIST_DIR}/FindKrb5.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/FindGssApi.cmake)
+
+if(NOT LibKrb5_FOUND)
+    message(FATAL_ERROR "Kerberos libraries not found. Please install krb5 development packages.")
+endif()
+
+if(NOT GSSAPI_FOUND)
+    message(FATAL_ERROR "GSSAPI libraries not found. Please install GSSAPI development packages.")
+endif()
+
+include_directories(BEFORE SYSTEM ${GSSAPI_INCLUDE_DIR} ${LibKrb5_INCLUDE_DIR})
 
 add_subdirectory(${LIBSMB2_DIR})
 
@@ -60,6 +45,6 @@ include_directories(${LIBJSONC_DIR})
 include_directories(${LIBSMB2_DIR}/include/smb2)
 include_directories(${LIBSMB2_DIR}/include)
 
-link_libraries(${GSSAPI_LIBRARY} ${KRB_LIBRARY} smb2 json-c)
+link_libraries(${GSSAPI_LIBRARY} ${LibKrb5_LIBRARY} smb2 json-c)
 add_executable(n2os_smb_client n2os-smb-client.c)
-target_link_libraries(n2os_smb_client ${GSSAPI_LIBRARY} ${KRB_LIBRARY} smb2 json-c)
+target_link_libraries(n2os_smb_client ${GSSAPI_LIBRARY} ${LibKrb5_LIBRARY} smb2 json-c)

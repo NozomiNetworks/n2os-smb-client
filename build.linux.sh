@@ -2,7 +2,7 @@
 set -ex
 
 # apt update
-# apt install -y git build-essential upx-ucl cmake libssl-dev libkrb5-dev
+# apt install -y git build-essential upx-ucl cmake libssl-dev
 
 # git submodule update --init --recursive
 
