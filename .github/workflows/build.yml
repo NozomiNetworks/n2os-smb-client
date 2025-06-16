@@ -1,3 +1,4 @@
+---
 name: Multi-platform build
 
 on:
@@ -11,9 +12,13 @@ jobs:
   build-linux:
     uses: ./.github/workflows/linux.yml
     secrets: inherit
+    with:
+      krb_impl: HEIMDAL
   build-freebsd:
     uses: ./.github/workflows/freebsd.yml
     secrets: inherit
+    with:
+      krb_impl: HEIMDAL
   finalize:
     runs-on: ubuntu-22.04
     needs: [build-linux, build-freebsd]

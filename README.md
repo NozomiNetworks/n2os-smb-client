@@ -4,37 +4,13 @@ This is a custom smb/cifs client with libsmb2 statically linked.
 
 ## Building
 
+KRB_IMPL env variable must be defined (MIT or HEIMDAL)
+
 ### FreeBSD version
-
-Optional prerequisite: install kerberos if you want Kerberos support
-
-```bash
-cd /usr/ports/security/krb5
-# (there should be a single Makefile in the folder)
-sudo make install clean
-```
-
-```bash
-git submodule update --init --recursive
-cmake . -DCMAKE_BUILD_TYPE=Release
-make
-strip -s n2os_smb_client
-```
 
 A build script is provided in [build.bsd.sh](build.bsd.sh).
 
 ### Linux version
-
-```bash
-docker run -it -v $(pwd):/n2os-smb-client debian:bullseye-slim /bin/bash
-apt update
-apt install -y build-essential upx-ucl cmake libssl-dev
-cd /n2os-smb-client
-cmake . -DCMAKE_BUILD_TYPE=Release
-make
-strip -s n2os_smb_client
-upx --best n2os_smb_client
-```
 
 A build script is provided in [build.linux.sh](build.linux.sh).
 
@@ -78,7 +54,10 @@ Exit codes:
 
 ## Test Env
 
-Launch compose file: ```docker compose -f smb_krb5.yml up```
+For a complete test env launch compose file: ```docker compose -f smb_test_env.yml up```
+
+For a client-only env launch compose file: ```docker compose -f smb_nn_env.yml up```
+In this case, a nn_krb5.conf file must be present, with the correct configuration.
 
 ### Basic Auth
 

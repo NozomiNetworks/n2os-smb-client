@@ -41,6 +41,14 @@
 
 #define IS_VALID_FILE(s) ((s) && *(s))
 
+// probably an omission in libsmb2, this enumeration is part of the public
+// interface but it's defined in a private header.
+enum {
+  SMB2_SEC_UNDEFINED = 0,
+  SMB2_SEC_NTLMSSP,
+  SMB2_SEC_KRB5,
+};
+
 int usage(void) {
   fprintf(stderr,
           "n2os-smb-client v.%s - (c) 2020-present Nozomi Networks Inc.\n\n"

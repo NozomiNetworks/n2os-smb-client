@@ -1,12 +1,7 @@
 #!/bin/sh
 set -ex
 
-# apt update
-# apt install -y git build-essential upx-ucl cmake libssl-dev
-
-# git submodule update --init --recursive
-
-cmake . -DCMAKE_BUILD_TYPE=Release
+cmake . -DCMAKE_BUILD_TYPE=Release -DKRB_IMPL="${KRB_IMPL}"
 make
 strip -s n2os_smb_client
 upx --best n2os_smb_client
@@ -19,5 +14,6 @@ fi
 
 ldd n2os_smb_client || echo "Binary is statically linked, no dynamic dependencies found."
 
+mkdir -p bin
 DEST_FILE="bin/n2os_smb_client.linux${ARM_SUFFIX}"
 cp n2os_smb_client "${DEST_FILE}"
