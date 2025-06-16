@@ -49,7 +49,8 @@ message(STATUS "KRB_IMPL: ${KRB_IMPL}")
 
 include_directories(BEFORE SYSTEM ${GSSAPI_INCLUDE_DIR} ${LibKrb5_INCLUDE_DIR})
 
-add_definitions(-DHAVE_LIBKRB5 -DENABLE_GSSAPI)
+# force compile with krb5, library removes the support if krb5 is not found
+add_definitions(-DHAVE_LIBKRB5)
 add_subdirectory(${LIBSMB2_DIR})
 
 include_directories(${LIBJSONC_DIR})
