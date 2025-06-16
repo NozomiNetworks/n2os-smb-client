@@ -39,13 +39,15 @@
 #define ESMBWRITE 14
 #define EUNLINKERROR 15
 
-enum smb2_sec {
-        SMB2_SEC_UNDEFINED = 0,
-        SMB2_SEC_NTLMSSP,
-        SMB2_SEC_KRB5,
-};
-
 #define IS_VALID_FILE(s) ((s) && *(s))
+
+// probably an omission in libsmb2, this enumeration is part of the public
+// interface but it's defined in a private header.
+enum {
+  SMB2_SEC_UNDEFINED = 0,
+  SMB2_SEC_NTLMSSP,
+  SMB2_SEC_KRB5,
+};
 
 int usage(void) {
   fprintf(stderr,

@@ -1,3 +1,4 @@
+---
 services:
   samba-client:
     image: smblinux:latest
