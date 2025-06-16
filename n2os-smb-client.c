@@ -405,8 +405,15 @@ int main(int argc, char *argv[]) {
   smb2_set_security_mode(smb2, SMB2_NEGOTIATE_SIGNING_ENABLED);
   smb2_set_timeout(smb2, DEFAULT_TIMEOUT);
 
+  char *krb5cc_suffix = strstr(smb_share, "?sec=krb5cc");
   char *krb5_suffix = strstr(smb_share, "?sec=krb5");
-  if (krb5_suffix != NULL) {
+
+  if (krb5cc_suffix != NULL) {
+    printf("Using Kerberos authentication with credential cache\n");
+    set_password_from_env(smb2);
+    smb2_set_authentication(smb2, SMB2_SEC_KRB5);
+    *krb5cc_suffix = '\0';
+  } else if (krb5_suffix != NULL) {
     printf("Using Kerberos authentication\n");
     smb2_set_authentication(smb2, SMB2_SEC_KRB5);
     *krb5_suffix = '\0';
