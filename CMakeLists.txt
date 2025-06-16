@@ -37,8 +37,20 @@ if(NOT GSSAPI_FOUND)
     message(FATAL_ERROR "GSSAPI libraries not found. Please install GSSAPI development packages.")
 endif()
 
+message(STATUS "LibKrb5_ROOT_DIR: ${LibKrb5_ROOT_DIR}")
+message(STATUS "LibKrb5_LIBRARY: ${LibKrb5_LIBRARY}")
+message(STATUS "LibKrb5_INCLUDE_DIR: ${LibKrb5_INCLUDE_DIR}")
+message(STATUS "LibKrb5_IMPL: ${LibKrb5_IMPL}")
+
+message(STATUS "GSSAPI_ROOT_DIR: ${GSSAPI_ROOT_DIR}")
+message(STATUS "GSSAPI_LIBRARY: ${GSSAPI_LIBRARY}")
+message(STATUS "GSSAPI_INCLUDE_DIR: ${GSSAPI_INCLUDE_DIR}")
+message(STATUS "KRB_IMPL: ${KRB_IMPL}")
+
 include_directories(BEFORE SYSTEM ${GSSAPI_INCLUDE_DIR} ${LibKrb5_INCLUDE_DIR})
 
+# force compile with krb5, library removes the support if krb5 is not found
+add_definitions(-DHAVE_LIBKRB5)
 add_subdirectory(${LIBSMB2_DIR})
 
 include_directories(${LIBJSONC_DIR})

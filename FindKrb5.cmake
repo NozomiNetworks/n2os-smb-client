@@ -53,10 +53,6 @@ find_package_handle_standard_args(LibKrb5 DEFAULT_MSG
     LibKrb5_INCLUDE_DIR
 )
 
-if(LibKrb5_FOUND)
-    message(STATUS "Found ${LibKrb5_IMPL} Kerberos implementation")
-endif()
-
 mark_as_advanced(
     LibKrb5_ROOT_DIR
     LibKrb5_LIBRARY

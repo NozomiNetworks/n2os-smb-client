@@ -13,12 +13,12 @@ jobs:
     uses: ./.github/workflows/linux.yml
     secrets: inherit
     with:
-      krb_impl: HEIMDAL
+      krb_impl: MIT
   build-freebsd:
     uses: ./.github/workflows/freebsd.yml
     secrets: inherit
     with:
-      krb_impl: HEIMDAL
+      krb_impl: MIT
   finalize:
     runs-on: ubuntu-22.04
     needs: [build-linux, build-freebsd]

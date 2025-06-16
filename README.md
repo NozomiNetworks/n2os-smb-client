@@ -5,6 +5,9 @@ This is a custom smb/cifs client with libsmb2 statically linked.
 ## Building
 
 KRB_IMPL env variable must be defined (MIT or HEIMDAL)
+HEIMDAL is currently not working.
+
+-DHAVE_LIBKRB5 is generating a warning in Linux build with MIT because we are forcing libsmb2 to compile with krb5 support.
 
 ### FreeBSD version
 
