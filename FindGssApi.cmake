@@ -49,12 +49,6 @@ find_package_handle_standard_args(GSSAPI DEFAULT_MSG
     GSSAPI_INCLUDE_DIR
 )
 
-if(GSSAPI_FOUND)
-    message(STATUS "Found ${KRB_IMPL} GSSAPI implementation")
-    message(STATUS "GSSAPI include directory: ${GSSAPI_INCLUDE_DIR}")
-    message(STATUS "GSSAPI library: ${GSSAPI_LIBRARY}")
-endif()
-
 mark_as_advanced(
     GSSAPI_ROOT_DIR
     GSSAPI_LIBRARY
