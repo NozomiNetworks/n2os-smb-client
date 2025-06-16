@@ -29,7 +29,7 @@ WORKDIR /usr/src/n2os-smb-client
 COPY . .
 
 # =MIT is default value
-ARG KRB_IMPL=HEIMDAL 
+ARG KRB_IMPL=MIT 
 ENV KRB_IMPL=${KRB_IMPL}
 
 # Install dependencies based on selected Kerberos implementation
