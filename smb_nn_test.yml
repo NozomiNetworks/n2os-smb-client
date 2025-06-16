@@ -1,0 +1,11 @@
+services:
+  samba-client:
+    image: smblinux:latest
+    container_name: samba-client
+    entrypoint: /bin/bash
+    stdin_open: true
+    tty: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./nn_krb5.conf:/etc/krb5.conf:ro

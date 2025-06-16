@@ -3,11 +3,11 @@
 # Build:
 # docker build -t "smblinux:latest" -f Dockerfile.linux .
 #
-# Build for ARM64 architecture:
-# docker build --progress plain -t "smblinux:latest" --build-arg ENV_ARM=1 -f Dockerfile.linux .
-#
 # Build for Heimdal Kerberos implementation:
 # docker build --progress plain -t "smblinux:latest" --build-arg KRB_IMPL=HEIMDAL -f Dockerfile.linux .
+#
+# Build for Heimdal Kerberos implementation with ARM64 architecture:
+# docker build --progress plain -t "smblinux:latest" --build-arg KRB_IMPL=HEIMDAL --build-arg ENV_ARM=1 -f Dockerfile.linux .
 #
 # Run with no options:
 # docker run --rm smblinux:latest
@@ -28,7 +28,8 @@ ENV ENV_ARM=${ENV_ARM}
 WORKDIR /usr/src/n2os-smb-client
 COPY . .
 
-ARG KRB_IMPL=MIT
+# =MIT is default value
+ARG KRB_IMPL=MIT 
 ENV KRB_IMPL=${KRB_IMPL}
 
 # Install dependencies based on selected Kerberos implementation
@@ -73,9 +74,9 @@ RUN if [ "$ENV_ARM" = "1" ]; then \
 
 RUN apt-get update && \
     if [ "$KRB_IMPL" = "HEIMDAL" ]; then \
-        apt-get install -y --no-install-recommends heimdal-clients ; \
+        apt-get install -y --no-install-recommends heimdal-clients iputils-ping ; \
     else \
-        apt-get install -y --no-install-recommends krb5-user ; \
+        apt-get install -y --no-install-recommends krb5-user iputils-ping ; \
     fi && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 

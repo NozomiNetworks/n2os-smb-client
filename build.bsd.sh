@@ -1,8 +1,6 @@
 #!/bin/sh
 set -e
 
-# git submodule update --init --recursive
-
 cmake . -DCMAKE_BUILD_TYPE=Release -DKRB_IMPL="${KRB_IMPL}"
 make
 strip -s n2os_smb_client
@@ -15,5 +13,6 @@ fi
 
 ldd n2os_smb_client || echo "Binary is statically linked, no dynamic dependencies found."
 
+mkdir -p bin
 DEST_FILE="bin/n2os_smb_client.bsd${ARM_SUFFIX}"
 cp n2os_smb_client "${DEST_FILE}"

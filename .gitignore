@@ -5,3 +5,4 @@ build/
 .cache/
 megalinter-reports/
 smb.conf
+nn_krb5.conf
