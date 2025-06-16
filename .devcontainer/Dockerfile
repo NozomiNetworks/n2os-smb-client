@@ -6,7 +6,8 @@ RUN apt-get update && \
         build-essential \
         cmake \
         libssl-dev \
-        heimdal-dev && \
+        libkrb5-dev \
+        libgssapi-krb5-2 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
