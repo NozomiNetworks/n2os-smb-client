@@ -25,7 +25,7 @@ Build and usage examples are provided in the [Dockerfile](Dockerfile.linux) itse
 
 ### MacOS version
 
-A build script is provided in [build.linux.sh](build.macos.sh).
+A build script is provided in [build.macos.debug.sh](build.macos.debug.sh).
 
 requires:
 ``` brew install json-c ```
