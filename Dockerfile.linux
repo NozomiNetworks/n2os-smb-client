@@ -3,6 +3,9 @@
 # Build:
 # docker build -t "smblinux:latest" -f Dockerfile.linux .
 #
+# Build for ARM64 architecture:
+# docker build --progress plain -t "smblinux:latest" --build-arg ENV_ARM=1 -f Dockerfile.linux .
+#
 # Build for Heimdal Kerberos implementation:
 # docker build --progress plain -t "smblinux:latest" --build-arg KRB_IMPL=HEIMDAL -f Dockerfile.linux .
 #
@@ -29,7 +32,7 @@ WORKDIR /usr/src/n2os-smb-client
 COPY . .
 
 # =MIT is default value
-ARG KRB_IMPL=HEIMDAL 
+ARG KRB_IMPL=MIT 
 ENV KRB_IMPL=${KRB_IMPL}
 
 # Install dependencies based on selected Kerberos implementation

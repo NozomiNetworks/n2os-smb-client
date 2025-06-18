@@ -405,18 +405,9 @@ int main(int argc, char *argv[]) {
   smb2_set_security_mode(smb2, SMB2_NEGOTIATE_SIGNING_ENABLED);
   smb2_set_timeout(smb2, DEFAULT_TIMEOUT);
 
-  char *krb5_suffix = strstr(smb_share, "?sec=krb5");
-  if (krb5_suffix != NULL) {
-    printf("Using Kerberos authentication\n");
-    smb2_set_authentication(smb2, SMB2_SEC_KRB5);
-    *krb5_suffix = '\0';
-  } else {
-    printf("Using NTLM authentication\n");
-    set_password_from_env(smb2);
-    smb2_set_authentication(smb2, SMB2_SEC_NTLMSSP);
-  }
-
   url = smb2_parse_url(smb2, smb_share);
+  set_password_from_env(smb2);
+
   if (url == NULL) {
     fprintf(stderr, "Failed to parse url: %s\n", smb2_get_error(smb2));
     result_code = ESMBPARSE;

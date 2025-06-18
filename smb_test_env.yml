@@ -33,6 +33,7 @@ services:
       - ./myshare:/srv/myshare
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+      # - ./smb.conf:/etc/samba/smb.conf
 
     networks:
       samba_net:
