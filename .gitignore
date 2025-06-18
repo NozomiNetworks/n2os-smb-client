@@ -1,7 +1,7 @@
 cmake-build*
 bin/
 .vscode
-build/
+build*/
 .cache/
 megalinter-reports/
 smb.conf

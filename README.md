@@ -12,13 +12,27 @@ HEIMDAL is currently not working.
 ### FreeBSD version
 
 A build script is provided in [build.bsd.sh](build.bsd.sh).
+only MIT kerberos compatible (pkg "krb5").
 
 ### Linux version
 
 A build script is provided in [build.linux.sh](build.linux.sh).
+only MIT kerberos compatible.
+see Dockerfile.linux for dependecies.
 
 A [Dockerfile](Dockerfile.linux) is also provided.
 Build and usage examples are provided in the [Dockerfile](Dockerfile.linux) itself.
+
+### MacOS version
+
+A build script is provided in [build.linux.sh](build.macos.sh).
+
+requires:
+``` brew install json-c ```
+
+``` brew install heimdal ```
+
+currently supports only ntlmssp auth.
 
 ## Usage
 
