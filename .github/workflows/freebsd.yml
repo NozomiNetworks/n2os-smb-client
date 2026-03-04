@@ -37,6 +37,7 @@ jobs:
           shell: bash
           sync_files: true
           architecture: ${{ matrix.arch }}
+          environment_variables: KRB_IMPL
           run: |
             sudo pkg install -y cmake
             if [ "${KRB_IMPL}" = "MIT" ]; then
