@@ -11,12 +11,10 @@ on:
 jobs:
   build-linux:
     uses: ./.github/workflows/linux.yml
-    secrets: inherit
     with:
       krb_impl: MIT
   build-freebsd:
     uses: ./.github/workflows/freebsd.yml
-    secrets: inherit
     with:
       krb_impl: MIT
   finalize:
@@ -24,22 +22,22 @@ jobs:
     needs: [build-linux, build-freebsd]
     steps:
       - name: Download artifact - FreeBSD x86-64
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: n2os_smb_client.bsd_x86-64
           path: bin/
       - name: Download artifact - FreeBSD arm64
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: n2os_smb_client.bsd_arm64
           path: bin/
       - name: Download artifact - Linux x86-64
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: n2os_smb_client.linux_x86-64
           path: bin/
       - name: Download artifact - Linux arm64
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: n2os_smb_client.linux_arm64
           path: bin/

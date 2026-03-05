@@ -26,26 +26,26 @@ jobs:
       matrix:
         arch: [x86-64, arm64]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: recursive
       - name: Cross Platform Action
-        uses: cross-platform-actions/action@v0.21.1
+        uses: cross-platform-actions/action@31fa1cca1066230dd072d023871e2e7c6dc552d1 # v0.21.1
         with:
           operating_system: freebsd
           version: "13.2"
           shell: bash
           sync_files: true
           architecture: ${{ matrix.arch }}
+          environment_variables: KRB_IMPL
           run: |
             sudo pkg install -y cmake
-            export KRB_IMPL="${{ env.KRB_IMPL }}"
             if [ "${KRB_IMPL}" = "MIT" ]; then
               sudo pkg install -y krb5
             fi
             ./build.bsd.sh
       - name: Store executable
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: "n2os_smb_client.bsd_${{ matrix.arch }}"
           path: bin/n2os_smb_client.bsd*
