@@ -7,5 +7,5 @@ cd $BUILD_DIR
 
 export CFLAGS="-g -O0"
 
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="$CFLAGS" -DKRB_IMPL="${KRB_IMPL}"
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="$CFLAGS"
 make

@@ -13,7 +13,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "deps/json-c/json.h"
+#include <json.h>
 // clang-format off
 #include "deps/libsmb2/include/smb2/smb2.h"
 #include "deps/libsmb2/include/smb2/libsmb2.h"
@@ -40,14 +40,6 @@
 #define EUNLINKERROR 15
 
 #define IS_VALID_FILE(s) ((s) && *(s))
-
-// probably an omission in libsmb2, this enumeration is part of the public
-// interface but it's defined in a private header.
-enum {
-  SMB2_SEC_UNDEFINED = 0,
-  SMB2_SEC_NTLMSSP,
-  SMB2_SEC_KRB5,
-};
 
 int usage(void) {
   fprintf(stderr,
