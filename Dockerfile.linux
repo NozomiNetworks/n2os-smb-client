@@ -21,8 +21,7 @@
 # Interactive shell on the container image:
 # docker run -ti --entrypoint /bin/bash smblinux:latest
 
-# FROM debian:bookworm-slim # no upx at the moment
-FROM debian:bullseye-slim AS builder
+FROM debian:trixie-slim AS builder
 
 # Used in GHA workflow
 ARG ENV_ARM
@@ -62,7 +61,7 @@ RUN apt-get update && \
 
 RUN ./build.linux.sh
 
-FROM debian:bullseye-slim
+FROM debian:trixie-slim
 
 ARG ENV_ARM
 ENV ENV_ARM=${ENV_ARM}
