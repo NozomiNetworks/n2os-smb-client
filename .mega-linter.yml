@@ -25,7 +25,9 @@ DISABLE:
 DISABLE_LINTERS:
   - REPOSITORY_CHECKOV
   - REPOSITORY_DEVSKIM
-  - REPOSITORY_KICS
+  # TODO(zizmor): enable and fix its workflow-security findings
+  # (excessive permissions, unpinned templates, ...) in a dedicated pass
+  - ACTION_ZIZMOR
   - YAML_V8R
 
 SHOW_ELAPSED_TIME: true
