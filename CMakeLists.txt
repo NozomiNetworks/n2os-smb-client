@@ -70,6 +70,12 @@ if(APPLE)
     # target misses the krb5_session_* symbols.
     # Remove this workaround when libsmb2 fixes lib/CMakeLists.txt.
     target_sources(smb2 PRIVATE ${LIBSMB2_DIR}/lib/krb5-wrapper.c)
+    # 6.3.x probes GSSAPI/LIBKRB5 on Linux and iOS only, so nothing links
+    # the frameworks on macOS (upstream fixed this on master). Link them
+    # into the final executable or krb5-wrapper.c/init.c miss the
+    # gss_*/krb5_* symbols.
+    # Remove this workaround when libsmb2 fixes CMakeLists.txt.
+    link_libraries("-framework GSS" "-framework Kerberos")
 endif()
 
 
