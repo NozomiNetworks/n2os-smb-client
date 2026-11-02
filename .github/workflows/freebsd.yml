@@ -33,9 +33,6 @@ jobs:
         uses: cross-platform-actions/action@82668f1fbd89d9c99487604f822cbf6716f124d3 # v1.7.0
         with:
           operating_system: freebsd
-          # FreeBSD 13.x is EOL (2026-04): its quarterly pkg repos have been
-          # decommissioned and the 13.2 VM can no longer install cmake/krb5.
-          # 14.3 is the closest still-supported release.
           version: "14.3"
           shell: bash
           sync_files: true
