@@ -70,6 +70,7 @@ if(APPLE)
     # target misses the krb5_session_* symbols.
     # Remove this workaround when libsmb2 fixes lib/CMakeLists.txt.
     target_sources(smb2 PRIVATE ${LIBSMB2_DIR}/lib/krb5-wrapper.c)
+    link_libraries("-framework GSS" "-framework Kerberos")
 endif()
 
 

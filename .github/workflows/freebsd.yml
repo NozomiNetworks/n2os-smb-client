@@ -30,10 +30,10 @@ jobs:
         with:
           submodules: recursive
       - name: Cross Platform Action
-        uses: cross-platform-actions/action@31fa1cca1066230dd072d023871e2e7c6dc552d1 # v0.21.1
+        uses: cross-platform-actions/action@82668f1fbd89d9c99487604f822cbf6716f124d3 # v1.7.0
         with:
           operating_system: freebsd
-          version: "13.2"
+          version: "14.3"
           shell: bash
           sync_files: true
           architecture: ${{ matrix.arch }}
